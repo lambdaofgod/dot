@@ -25,7 +25,21 @@
 
 (add-hook 'python-mode-hook 'jedi:setup)
 (setq jedi:complete-on-dot t)       
+(global-set-key [C-M-\]] 'jedi:goto-definition)
 
 (add-hook 'after-init-hook 'global-company-mode)
 (with-eval-after-load 'company
   (add-to-list 'company-backends 'company-math-symbols-unicode))
+(custom-set-variables
+    '(TeX-view-program-list (quote (("Qpdfview" "qpdfview --unique %o"))))
+    '(TeX-view-program-selection
+	(quote (((output-dvi has-no-display-manager)
+	"dvi2tty")
+	((output-dvi style-pstricks)
+	"dvips and gv")
+	(output-dvi "xdvi")
+	(output-pdf "Qpdfview")
+	(output-html "xdg-open")))))
+
+(setq-default indent-tabs-mode nil)
+(setq  tab-width  4)

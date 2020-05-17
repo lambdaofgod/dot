@@ -141,7 +141,6 @@ unset __conda_setup
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
-alias emacs="emacs -nw --load /home/kuba/.emacs"
 
 # 3 screen setup
 alias setup_multiscreen="xrandr --output HDMI-1-1 --right-of eDP-1-1; xrandr --output HDMI-0 --right-of HDMI-1-1 --rotate left; xrandr --output eDP-1-1 --primary; xrandr --output HDMI-1-1 --secondary"
@@ -149,7 +148,9 @@ alias setup_multiscreen="xrandr --output HDMI-1-1 --right-of eDP-1-1; xrandr --o
 
 tmux_jupyter() {
         cd ~/Projects
-	jupyter-notebook
+        tmux new -d -s jupyter 
+        tmux send-keys -t jupyter "jupyter-notebook" Enter
+        tmux a -t jupyter 
 }
 
 
@@ -159,3 +160,9 @@ tmux_guild() {
         tmux send-keys -t guild "conda activate guild" Enter
         tmux a -t guild
 }
+
+alias e="emacsclient -nw"
+alias sl=ls
+
+export VISUAL=vim
+export EDITOR="$VISUAL"
