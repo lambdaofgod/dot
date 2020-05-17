@@ -169,7 +169,6 @@ bar {
 #Audio controll
 
 # Pulse Audio controls
-
 exec --no-startup-id volumeicon
 ##bindsym $mod+Ctrl+m exec terminal -e 'alsamixer'
 exec --no-startup-id pulseaudio
@@ -180,3 +179,8 @@ bindsym XF86AudioLowerVolume exec --no-startup-id amixer -D pulse sset Master 5%
 
 bindsym XF86AudioMute exec --no-startup-id amixer -D pulse set Master 1+ toggle # mute sound
 
+exec --no-startup-id firefox 
+exec --no-startup-id spotify
+exec --no-startup-id blueman-applet 
+exec --no-startup-id emacs --daemon --load /home/kuba/.emacs
+exec --no-startup-id guake 

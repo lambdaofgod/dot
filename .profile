@@ -25,8 +25,3 @@ fi
 if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
-
-guake &
-if ! emacsclient -e 0 >&/dev/null
-then emacs --daemon --load /home/kuba/.emacs
-fi
