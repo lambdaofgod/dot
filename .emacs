@@ -25,7 +25,26 @@
 
 (add-hook 'python-mode-hook 'jedi:setup)
 (setq jedi:complete-on-dot t)       
-(global-set-key [C-M-\]] 'jedi:goto-definition)
+
+(defun split-and-follow-horizontally ()
+  (interactive)
+  (split-window-below)
+  (balance-windows)
+  (other-window 1))
+(global-set-key (kbd "C-x 2") 'split-and-follow-horizontally)
+
+(defun split-and-follow-vertically ()
+  (interactive)
+  (split-window-right)
+  (balance-windows)
+  (other-window 1))
+(global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
+
+(defun goto-definition ()
+  (interactive)
+  (split-and-follow-vertically)
+  (jedi:goto-definition))
+(global-set-key "\C-\M-]" 'goto-definition)
 
 (add-hook 'after-init-hook 'global-company-mode)
 (with-eval-after-load 'company
