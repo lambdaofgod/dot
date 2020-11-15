@@ -161,8 +161,60 @@ tmux_guild() {
         tmux a -t guild
 }
 
-alias e="emacsclient -nw"
+
+tmux_ml() {
+        j "$1"
+        tmux new -d -s guild
+        tmux send-keys -t guild "conda activate ml" Enter
+        tmux a -t guild
+}
+
+alias emacs="/snap/bin/emacs"
+alias e="/snap/bin/emacsclient -nw"
 alias sl=ls
 
 export VISUAL=vim
 export EDITOR="$VISUAL"
+
+alias monalisa="echo '449 DavidBarber 89378'"
+
+alias npm=/usr/local/bin/npm
+
+
+# JINA_CLI_BEGIN
+
+## autocomplete
+_jina() {
+  COMPREPLY=()
+  local word="${COMP_WORDS[COMP_CWORD]}"
+
+  if [ "$COMP_CWORD" -eq 1 ]; then
+    COMPREPLY=( $(compgen -W "$(jina commands)" -- "$word") )
+  else
+    local words=("${COMP_WORDS[@]}")
+    unset words[0]
+    unset words[$COMP_CWORD]
+    local completions=$(jina completions "${words[@]}")
+    COMPREPLY=( $(compgen -W "$completions" -- "$word") )
+  fi
+}
+
+complete -F _jina jina
+
+# session-wise fix
+ulimit -n 4096
+export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+
+# JINA_CLI_END
+
+export SPARK_HOME=/opt/spark
+export PATH=$SPARK_HOME/bin:$PATH
+
+alias elasticsearch_start='docker run -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:7.9.3'
+
+
+export PATH=$PATH:/home/kuba/.kenlm/build/bin
+alias e="emacsclient -nw"
+alias emacs_kill_daemon='emacsclient -e "(kill-emacs)"'
+alias ml_env_activate="conda activate ml"
+alias nbdev_install_lib="nbdev_build_lib; pip install -e ."
