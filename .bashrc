@@ -3,10 +3,10 @@
 # for examples
 
 # If not running interactively, don't do anything
-case $- in
-    *i*) ;;
-      *) return;;
-esac
+#case $- in
+#    *i*) ;;
+#      *) return;;
+#esac
 
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
@@ -116,12 +116,6 @@ if ! shopt -oq posix; then
   fi
 fi
 
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/etc/google/google-cloud-sdk/path.bash.inc' ]; then . '/etc/google/google-cloud-sdk/path.bash.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f '/etc/google/google-cloud-sdk/completion.bash.inc' ]; then . '/etc/google/google-cloud-sdk/completion.bash.inc'; fi
-
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
 __conda_setup="$('/etc/conda/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
@@ -137,84 +131,64 @@ fi
 unset __conda_setup
 # <<< conda initialize <<<
 
+# autojump
 [[ -s /home/kuba/.autojump/etc/profile.d/autojump.sh ]] && source /home/kuba/.autojump/etc/profile.d/autojump.sh
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
+# nvidia
+export LD_LIBRARY_PATH=/usr/local/cuda-11.0/lib64:${LD_LIBRARY_PATH}
 
-# 3 screen setup
-alias setup_multiscreen="xrandr --output HDMI-1-1 --right-of eDP-1-1; xrandr --output HDMI-0 --right-of HDMI-1-1 --rotate left; xrandr --output eDP-1-1 --primary; xrandr --output HDMI-1-1 --secondary"
-
-
+# tmux utils
 tmux_jupyter() {
-        cd ~/Projects
-        tmux new -d -s jupyter 
-        tmux send-keys -t jupyter "jupyter-notebook" Enter
-        tmux a -t jupyter 
+    cd ~/Projects
+    tmux new -d -s jupyter 
+    tmux send-keys -t jupyter "jupyter-notebook" Enter
+    tmux a -t jupyter 
 }
 
 
 tmux_guild() {
-        j "$1"
-        tmux new -d -s guild
-        tmux send-keys -t guild "conda activate guild" Enter
-        tmux a -t guild
+    j "$1"
+    tmux new -d -s guild
+    tmux send-keys -t guild "conda activate guild" Enter
+    tmux a -t guild
 }
 
 
 tmux_ml() {
-        j "$1"
-        tmux new -d -s guild
-        tmux send-keys -t guild "conda activate ml" Enter
-        tmux a -t guild
+    j "$1"
+    tmux new -d -s guild
+    tmux send-keys -t guild "conda activate ml" Enter
+    tmux a -t guild
 }
 
-alias emacs="/snap/bin/emacs"
-alias e="/snap/bin/emacsclient -nw"
-alias sl=ls
-
-export VISUAL=vim
-export EDITOR="$VISUAL"
-
-alias monalisa="echo '449 DavidBarber 89378'"
-
-alias npm=/usr/local/bin/npm
-
-
-# JINA_CLI_BEGIN
-
-## autocomplete
-_jina() {
-  COMPREPLY=()
-  local word="${COMP_WORDS[COMP_CWORD]}"
-
-  if [ "$COMP_CWORD" -eq 1 ]; then
-    COMPREPLY=( $(compgen -W "$(jina commands)" -- "$word") )
-  else
-    local words=("${COMP_WORDS[@]}")
-    unset words[0]
-    unset words[$COMP_CWORD]
-    local completions=$(jina completions "${words[@]}")
-    COMPREPLY=( $(compgen -W "$completions" -- "$word") )
-  fi
-}
-
-complete -F _jina jina
-
-# session-wise fix
-ulimit -n 4096
-export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
-
-# JINA_CLI_END
-
-export SPARK_HOME=/opt/spark
-export PATH=$SPARK_HOME/bin:$PATH
-
-alias elasticsearch_start='docker run -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:7.9.3'
-
-
-export PATH=$PATH:/home/kuba/.kenlm/build/bin
+## useful aliases
+#emacs
+alias edaemon="emacs --daemon"
 alias e="emacsclient -nw"
+alias ew="emacsclient"
 alias emacs_kill_daemon='emacsclient -e "(kill-emacs)"'
+alias spacemacsconf='e ~/.spacemacs'
+alias emacsel='e ~/.emacsd/init.el'
+alias emacsd='e ~/.emacsd'
+
 alias ml_env_activate="conda activate ml"
 alias nbdev_install_lib="nbdev_build_lib; pip install -e ."
+alias python="python3"
+alias pip="pip3"
+
+alias sl=ls
+
+export MANPATH="$MANPATH:/usr/local/texlive/2020/texmf-dist/doc/man"
+export INFOPATH="$INFOPATH:/usr/local/texlive/2020/texmf-dist/doc/info"
+export PATH=/usr/local/texlive/2020/bin/x86_64-linux:$PATH
+
+# c++ stuff
+export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig
+
+export CC=/usr/bin/gcc
+export CXX=/usr/bin/g++
+
+# aws
+alias aws="/usr/local/bin/aws"
