@@ -31,18 +31,17 @@ values."
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(
-     auto-completion
+     anaconda-mode
      (c-c++ :variables
             c-c++-enable-clang-support t)
-     c-c++
      ipython-notebook
      html
-     coq
      csv
      markdown
      octave
      yaml
-     python
+     alda
+     (python :variables python-formatter 'black python-backend 'anaconda)
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
@@ -57,14 +56,14 @@ values."
      git
      terraform
      sql
-     ;; markdown
+     markdown
      org
      (shell :variables
             shell-default-height 30
             shell-default-position 'bottom)
      docker
-     ;; spell-checking
-     ;; syntax-checking
+     spell-checking
+     syntax-checking
      ;; version-control
      )
    ;; List of additional packages that will be installed without being
@@ -76,6 +75,7 @@ values."
                                                              :fetcher github
                                                              :repo "emacs-evil/evil-magit"))
                                       centaur-tabs
+                                      jedi
                                       )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -371,6 +371,9 @@ you should place your code here."
   (evil-leader/set-key "C-<end>" 'centaur-tabs-forward)
   (global-set-key (kbd "C-<home>")  'centaur-tabs-backward)
   (global-set-key (kbd "C-<end>") 'centaur-tabs-forward)
+  (setq-default flycheck-flake8-maximum-line-length 100)
+  (setq projectile-enable-caching t)
+  (setq projectile-indexing-method 'native)
 )
 
 
@@ -390,7 +393,7 @@ you should place your code here."
  '(evil-want-Y-yank-to-eol nil)
  '(package-selected-packages
    (quote
-    (writeroom-mode centaur-tabs dockerfile-mode tablist docker-tramp tabbar transpose-frame sql-indent terraform-mode hcl-mode evil-magit smeargle orgit magit-gitflow magit-popup magit helm-gitignore gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-commit transient evil-org xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help disaster company-c-headers cmake-mode clang-format elpa-audit org-gtd helpful org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download htmlize gnuplot org-roam web-beautify livid-mode skewer-mode simple-httpd json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc coffee-mode ein with-editor polymode deferred anaphora websocket company-coq company-math math-symbol-lists web-mode tagedit slim-mode scss-mode sass-mode pug-mode helm-css-scss haml-mode emmet-mode company-web web-completion-data auctex-latexmk csv-mode docker mmm-mode markdown-toc markdown-mode gh-md company-auctex auctex yaml-mode helm-company helm-c-yasnippet fuzzy company-statistics company-anaconda auto-yasnippet yasnippet ac-ispell company auto-complete yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode dash-functional helm-pydoc cython-mode anaconda-mode pythonic undo-tree spinner adaptive-wrap ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hydra lv hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-projectile projectile pkg-info epl helm-mode-manager helm-make helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired f evil-tutor evil-surround evil-search-highlight-persist highlight evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg eval-sexp-fu elisp-slime-nav dumb-jump dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))))
+    (writeroom-mode centaur-tabs dockerfile-mode tablist docker-tramp tabbar transpose-frame sql-indent terraform-mode hcl-mode evil-magit smeargle orgit magit-gitflow magit-popup magit helm-gitignore gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-commit transient evil-org xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help disaster company-c-headers cmake-mode clang-format elpa-audit org-gtd helpful org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download htmlize gnuplot org-roam web-beautify livid-mode skewer-mode simple-httpd json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc coffee-mode ein with-editor polymode deferred anaphora websocket company-math math-symbol-lists web-mode tagedit slim-mode scss-mode sass-mode pug-mode helm-css-scss haml-mode emmet-mode company-web web-completion-data auctex-latexmk csv-mode docker mmm-mode markdown-toc markdown-mode gh-md company-auctex auctex yaml-mode helm-company helm-c-yasnippet fuzzy company-statistics company-anaconda auto-yasnippet yasnippet ac-ispell company auto-complete pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode dash-functional helm-pydoc cython-mode anaconda-mode pythonic undo-tree spinner adaptive-wrap ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hydra lv hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-projectile projectile pkg-info epl helm-mode-manager helm-make helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired f evil-tutor evil-surround evil-search-highlight-persist highlight evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg eval-sexp-fu elisp-slime-nav dumb-jump dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -398,3 +401,54 @@ you should place your code here."
  ;; If there is more than one, they won't work right.
  '(org-done ((t (:foreground "PaleGreen" :weight normal :strike-through t))))
  '(org-headline-done ((((class color) (min-colors 16) (background dark)) (:foreground "LightSalmon" :strike-through t)))))
+(defun dotspacemacs/emacs-custom-settings ()
+  "Emacs custom settings.
+This is an auto-generated function, do not modify its content directly, use
+Emacs customize menu instead.
+This function is called at the very end of Spacemacs initialization."
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(ansi-color-names-vector
+   ["#2e3436" "#a40000" "#4e9a06" "#c4a000" "#204a87" "#5c3566" "#729fcf" "#eeeeec"])
+ '(custom-enabled-themes '(wheatgrass))
+ '(custom-safe-themes
+   '("fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" default))
+ '(evil-want-Y-yank-to-eol nil)
+ '(package-selected-packages
+   '(zmq jupyter jedi yapfify stickyfunc-enhance sphinx-doc pydoc poetry pippel pipenv nose importmagic epc ctable concurrent helm-gtags helm-cscope xcscope ggtags dap-mode bui counsel-gtags counsel swiper ivy blacken writeroom-mode centaur-tabs dockerfile-mode tablist docker-tramp tabbar transpose-frame sql-indent terraform-mode hcl-mode evil-magit smeargle orgit magit-gitflow magit-popup magit helm-gitignore gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-commit transient evil-org xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help disaster company-c-headers cmake-mode clang-format elpa-audit org-gtd helpful org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download htmlize gnuplot org-roam web-beautify livid-mode skewer-mode simple-httpd json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc coffee-mode ein with-editor polymode deferred anaphora websocket company-math math-symbol-lists web-mode tagedit slim-mode scss-mode sass-mode pug-mode helm-css-scss haml-mode emmet-mode company-web web-completion-data auctex-latexmk csv-mode docker mmm-mode markdown-toc markdown-mode gh-md company-auctex auctex yaml-mode helm-company helm-c-yasnippet fuzzy company-statistics company-anaconda auto-yasnippet yasnippet ac-ispell company auto-complete pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode dash-functional helm-pydoc cython-mode anaconda-mode pythonic undo-tree spinner adaptive-wrap ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint indent-guide hydra lv hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-themes helm-swoop helm-projectile projectile pkg-info epl helm-mode-manager helm-make helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired f evil-tutor evil-surround evil-search-highlight-persist highlight evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg eval-sexp-fu elisp-slime-nav dumb-jump dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))
+ '(safe-local-variable-values
+   '((eval setq-local jedi:server-command
+           (list python-shell-interpreter jedi:server-script))
+     (eval setq-local jedi:environment-root python-shell-virtualenv-root)
+     (eval setq-local flycheck-python-pylint-executable python-shell-interpreter)
+     (eval setq-local flycheck-pylintrc ".pylintrc")
+     (eval setq-local pylint-command
+           (expand-file-name "bin/pylint" python-shell-virtualenv-root))
+     (eval setq-local python-environment-virtualenv
+           (list
+            (expand-file-name "bin/virtualenv" python-shell-virtualenv-root)
+            "--quiet"))
+     (eval setq-local python-shell-interpreter
+           (expand-file-name "bin/python" python-shell-virtualenv-root))
+     (eval setq-local python-shell-virtualenv-root
+           (concat python-environment-directory "/" python-environment-default-root-name))
+     (eval setq-local python-environment-default-root-name "py3")
+     (eval setq-local python-environment-directory
+           (expand-file-name "./local" prj-root))
+     (eval setq-local prj-root
+           (locate-dominating-file default-directory ".dir-locals.el"))
+     (javascript-backend . tide)
+     (javascript-backend . tern)
+     (javascript-backend . lsp))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(highlight-parentheses-highlight ((nil (:weight ultra-bold))) t)
+ '(org-done ((t (:foreground "PaleGreen" :weight normal :strike-through t))))
+ '(org-headline-done ((((class color) (min-colors 16) (background dark)) (:foreground "LightSalmon" :strike-through t)))))
+)
