@@ -31,7 +31,6 @@ values."
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(
-     anaconda-mode
      (c-c++ :variables
             c-c++-enable-clang-support t)
      ipython-notebook
@@ -41,7 +40,7 @@ values."
      octave
      yaml
      alda
-     (python :variables python-formatter 'black python-backend 'anaconda)
+     (python :variables python-formatter 'black)
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
@@ -374,6 +373,12 @@ you should place your code here."
   (setq-default flycheck-flake8-maximum-line-length 100)
   (setq projectile-enable-caching t)
   (setq projectile-indexing-method 'native)
+  (use-package python-mode
+    :ensure t
+    :hook (python-mode . lsp)
+    )
+  (set-face-attribute 'flycheck-warning nil :underline nil)
+  (setq-default flycheck-flake8-maximum-line-length 100)
 )
 
 
