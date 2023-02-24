@@ -147,6 +147,39 @@
                        (require 'org-roam-protocol)))
 (after! org)
 
+
+;;;;;;;;;;;;;;;
+;;; org-present
+;;;;;;;;;;;;;;;
+
+
+(defun org-present-start ()
+  ;; Center the presentation and wrap lines
+  (setq visual-fill-column-width 150
+        visual-fill-column-center-text t)
+  (visual-fill-column-mode 1)
+  (visual-line-mode 1)
+  (menu-bar-mode 0)
+  (tool-bar-mode 0)
+  (scroll-bar-mode 0))
+
+ 
+
+(defun org-present-end ()
+  ;; Stop centering the document
+  (visual-fill-column-mode 0)
+  (visual-line-mode 0)
+  (menu-bar-mode 1)
+  (tool-bar-mode 1)
+  (scroll-bar-mode 1))
+
+
+(add-hook 'org-present-mode-hook 'display-line-numbers-mode)
+(add-hook 'org-present-mode-hook 'org-present-start)
+(add-hook 'org-present-mode-quit-hook 'display-line-numbers-mode)
+(add-hook 'org-present-mode-quit-hook 'org-present-end)
+
+
 ;;;;;;;;
 ;; babel
 ;;;;;;;;
