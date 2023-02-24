@@ -75,6 +75,56 @@
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
 
+;;;;;;;;
+;; navigation
+;;;;;;;;
+(map! "C-<left>" #'windmove-left
+      "C-<right>" #'windmove-right
+      "C-<up>" #'windmove-up
+      "C-<down>" #'windmove-down)
+
+;;;;;;;;
+;; clipboard copy-paste
+;;;;;;;;
+(defun copy-to-clipboard ()
+   "Copies selection to x-clipboard."
+   (interactive)
+   (if (display-graphic-p)
+       (progn
+         (message "Yanked region to x-clipboard!")
+         (call-interactively 'clipboard-kill-ring-save))
+
+     (if (region-active-p)
+         (progn
+           (shell-command-on-region (region-beginning) (region-end) "xsel     -i -b")
+           (message "Yanked region to clipboard!")
+           (deactivate-mark))
+       (message "No region active; can't yank to clipboard!"))))
+
+
+(defun paste-from-clipboard ()
+  "Pastes from x-clipboard."
+  (interactive)
+  (if (display-graphic-p)
+      (progn
+        (clipboard-yank)
+        (message "graphics active"))
+
+    (insert (shell-command-to-string "xsel -o -b"))))
+(map! :leader "o y" #'copy-to-clipboard)
+(map! :leader "o p" #'paste-from-clipboard)
+
+;;;;;;;;
+;; magit
+;;;;;;;;
+(map! :leader "m s" #'magit-status)
+(map! :leader "m c" #'magit-checkout)
+(map! :map 'override "M-s o" #'smerge-keep-other)
+(map! :map 'override "M-s m" #'smerge-keep-mine)
+
+;;;;;;;;
+;; roam
+;;;;;;;;
 (use-package org-roam
   :ensure t
   :custom
@@ -97,13 +147,39 @@
                        (require 'org-roam-protocol)))
 (after! org)
 
+;;;;;;;;
+;; babel
+;;;;;;;;
+(defvar ipython-code-block-args "ipython :session :results raw drawer :exports both")
+
+(defun insert-org-mode-code-block (code-block-args)
+  (let* (
+         (code-block-end "#+END_SRC")
+         (n-backward (+ 1 (length code-block-end))))
+    (progn
+      (insert
+       (concat "#+BEGIN_SRC " code-block-args "\n\n" code-block-end))
+      (backward-char n-backward))))
+
+(defun insert-ipython-org-mode-code-block ()
+  (interactive)
+  (insert-org-mode-code-block ipython-code-block-args))
+
+(map! "C-c i" #'insert-ipython-org-mode-code-block)
+
+(after! org-babel
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((ipython . t)
+     (python . t))))
+
 
 (defun rename-async-buffer-with-truncated-lines (buffer-name)
   (with-current-buffer "*Async Shell Command*"
     (progn
       (rename-buffer buffer-name)
       (toggle-truncate-lines))))
-
+;; chatgpt
 
 (defun ask-chatgpt ()
   "ask chatgpt using https://github.com/mmabrouk/chatgpt-wrapper"
@@ -116,6 +192,9 @@
           (rename-async-buffer-with-truncated-lines "ChatGPT"))
         (switch-to-buffer-other-window buffer-name))))
 
+;;;;;;;;
+;; docker-compose
+;;;;;;;;
 
 (defun docker-compose-all-impl (down build daemon)
   "runs docker-compose"
@@ -130,11 +209,6 @@
       (async-shell-command command)
       (rename-async-buffer-with-truncated-lines buffer-name))))
 
-(map! "C-<left>" #'windmove-left
-      "C-<right>" #'windmove-right
-      "C-<up>" #'windmove-up
-      "C-<down>" #'windmove-down)
-
 (defun dup ()
   "docker compose up"
   (interactive) (docker-compose-all-impl nil nil nil))
@@ -148,6 +222,41 @@
   "docker compose down; build then up in daemon"
   (interactive) (docker-compose-all-impl t t t))
 
-
+;;;;;;;;
+;; flycheck
+;;;;;;;;
 (after! flycheck-mode
   (setq flycheck-disabled-checkers (cl-pushnew python-pylint flycheck-disabled-checkers)))
+
+;;;;;;;;
+;; emacs ipython notebook
+;;;;;;;;
+(map! "C-c C-d" #'ein:worksheet-kill-cell)
+
+(defun elpy-ein-enable (&optional _ignored)
+  "Enable Elpy in all future Python buffers."
+  (interactive)
+  (unless elpy-enabled-p
+    (when _ignored
+      (warn "The argument to `elpy-enable' is deprecated, customize `elpy-modules' instead"))
+    (elpy-modules-global-init)
+    (define-key inferior-python-mode-map (kbd "C-c C-z") 'elpy-shell-switch-to-buffer)
+    (add-hook 'ein:notebook-mode-hook 'elpy-mode)
+    (add-hook 'pyvenv-post-activate-hooks 'elpy-rpc--disconnect)
+    (add-hook 'pyvenv-post-deactivate-hooks 'elpy-rpc--disconnect)
+    (add-hook 'inferior-python-mode-hook 'elpy-shell--enable-output-filter)
+    (add-hook 'python-shell-first-prompt-hook 'elpy-shell--send-setup-code t)
+    ;; Add codecell boundaries highligting
+    (font-lock-add-keywords
+     'ein:notebook-mode
+     `((,(replace-regexp-in-string "\\\\" "\\\\"
+                                   elpy-shell-cell-boundary-regexp)
+        0 'elpy-codecell-boundary prepend)))
+    ;; Enable Elpy-mode in the opened python buffer
+    (setq elpy-enabled-p t)
+    (dolist (buffer (buffer-list))
+      (and (not (string-match "^ ?\\*" (buffer-name buffer)))
+           (with-current-buffer buffer
+             (when (string= major-mode 'ein:notebook-mode)
+               (ein:notebook-mode)  ;; update codecell fontification
+               (elpy-mode t)))))))
