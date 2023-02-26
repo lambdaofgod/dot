@@ -161,6 +161,11 @@
                        (require 'org-roam-protocol)))
 (after! org)
 
+(defun org-mode-sync ()
+  (interactive)
+  (async-shell-command (concat "bash " org-directory "/scripts/run_autocommit_loop.sh"))
+  (rename-async-buffer-with-truncated-lines "org-sync"))
+
 
 ;;;;;;;;;;;;;;;
 ;;; org-present
@@ -192,7 +197,6 @@
 (add-hook 'org-present-mode-hook 'org-present-start)
 (add-hook 'org-present-mode-quit-hook 'display-line-numbers-mode)
 (add-hook 'org-present-mode-quit-hook 'org-present-end)
-
 
 ;;;;;;;;
 ;; babel
