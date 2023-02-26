@@ -75,32 +75,22 @@
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
 
-;;;;;;;;
-;; navigation
-;;;;;;;;
-(map! "C-<left>" #'windmove-left
-      "C-<right>" #'windmove-right
-      "C-<up>" #'windmove-up
-      "C-<down>" #'windmove-down)
-
-;;;;;;;;
-;; clipboard copy-paste
-;;;;;;;;
+;; helper functions
+;; clipboard functions
 (defun copy-to-clipboard ()
-   "Copies selection to x-clipboard."
-   (interactive)
-   (if (display-graphic-p)
-       (progn
-         (message "Yanked region to x-clipboard!")
-         (call-interactively 'clipboard-kill-ring-save))
+  "Copies selection to x-clipboard."
+  (interactive)
+  (if (display-graphic-p)
+      (progn
+        (message "Yanked region to x-clipboard!")
+        (call-interactively 'clipboard-kill-ring-save))
 
-     (if (region-active-p)
-         (progn
-           (shell-command-on-region (region-beginning) (region-end) "xsel     -i -b")
-           (message "Yanked region to clipboard!")
-           (deactivate-mark))
-       (message "No region active; can't yank to clipboard!"))))
-
+    (if (region-active-p)
+        (progn
+          (shell-command-on-region (region-beginning) (region-end) "xsel     -i -b")
+          (message "Yanked region to clipboard!")
+          (deactivate-mark))
+      (message "No region active; can't yank to clipboard!"))))
 
 (defun paste-from-clipboard ()
   "Pastes from x-clipboard."
@@ -111,21 +101,101 @@
         (message "graphics active"))
 
     (insert (shell-command-to-string "xsel -o -b"))))
+
+;; shell functions
+;; rename buffer used to run async shell command with 'buffer-name'
+;; this is useful when running shell commands in the background like docker-compose
+
+(defun rename-async-buffer-with-truncated-lines (buffer-name)
+  (with-current-buffer "*Async Shell Command*"
+    (progn
+      (rename-buffer buffer-name)
+      (toggle-truncate-lines))))
+
+
+;; buffer manipulation for sending stuff to repl
+(defun get-buffer-contents-up-to-cursor ()
+  (buffer-substring (point-min) (point)))
+
+(defun shell-eval-before-cursor (shell-eval)
+  "eval contents up to current cursor position using 'shell-eval function'"
+  (funcall shell-eval
+           (get-buffer-contents-up-to-cursor)))
+
+
+(defun goto-messages-buffer ()
+  "Switch to the *Messages* buffer."
+  (interactive)
+  (switch-to-buffer "*Messages*"))
+
+;;;;;;;;
+;; navigation
+;;;;;;;;
+;;;;;;;;
+;; go to this config
+
+(map! :leader
+      :prefix
+      "o"
+      :desc "go to doom config"
+      "c" #'doom/goto-private-config-file
+      :desc "go to doom init"
+      "i" #'doom/goto-private-init-file)
+
+
+;; window navigation
+(map!
+ "C-<left>" #'windmove-left
+ "C-<right>" #'windmove-right
+ "C-<up>" #'windmove-up
+ "C-<down>" #'windmove-down)
+
+;; buffers
+(map!
+ :desc "Buffer viewing utils"
+ :leader
+ :prefix "v"
+ :desc "View message buffer"
+ "m" #'goto-messages-buffer
+ :desc "View buffers"
+ "b" #'view-buffer
+ :desc "elisp repl"
+ "r" #'+emacs-lisp/open-repl)
+
+;; truncation
+(map! :leader "t t" #'toggle-truncate-lines)
+
+;; commenting
+(map!
+ :leader "r c" #'comment-region
+ :leader "r u" #'uncomment-region)
+
+;;;;;;;;;;;;;;;;;;;;;;;
+;; clipboard copy-paste
+;;;;;;;;;;;;;;;;;;;;;;;
 (map! :leader "o y" #'copy-to-clipboard)
 (map! :leader "o p" #'paste-from-clipboard)
 
+;;;;;;;;;;;;;;;;
+;; python
+;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;
-;; python black
-;;;;;;;;;;;;;;;;
+(defun python-shell-eval-before-cursor ()
+  (interactive)
+  (shell-eval-before-cursor #'python-shell-send-region))
+
+(map! :after python-mode
+      :map python-mode-map 'override "C-c C-r" #'python-shell-eval-before-cursor
+      :map python-mode-map "C-c C-v" #'python-shell-send-region)
+
+;; black
 (use-package! python-black
   :demand t
   :after python)
 (add-hook! 'python-mode-hook #'python-black-on-save-mode)
-;; Feel free to throw your own personal keybindings here
-(map! :leader :desc "Blacken Buffer" "m b b" #'python-black-buffer)
-(map! :leader :desc "Blacken Region" "m b r" #'python-black-region)
-(map! :leader :desc "Blacken Statement" "m b s" #'python-black-statement)
+(map! :leader :desc "Blacken Buffer" "m =" #'python-black-buffer)
+(map! :leader :desc "Blacken Region" "m - r" #'python-black-region)
+(map! :leader :desc "Blacken Statement" "m - s" #'python-black-statement)
 
 
 ;;;;;;;;
@@ -177,7 +247,7 @@
   (tool-bar-mode 0)
   (scroll-bar-mode 0))
 
- 
+
 
 (defun org-present-end ()
   ;; Stop centering the document
@@ -218,18 +288,15 @@
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((ipython . t)
-     (python . t))))
+     (python . t)
+     (hy . t))))
 
-
-(defun rename-async-buffer-with-truncated-lines (buffer-name)
-  (with-current-buffer "*Async Shell Command*"
-    (progn
-      (rename-buffer buffer-name)
-      (toggle-truncate-lines))))
-
-;;;;;;;;
+;;;;;;;;;;
 ;; chatgpt
-;;;;;;;;
+;;;;;;;;;;
+
+;; TODO: send messages to stop chatgpt response?
+;; currently communication only uses text, maybe there is a better way to run it
 
 (defun ask-chatgpt ()
   "ask chatgpt using https://github.com/mmabrouk/chatgpt-wrapper"
@@ -240,11 +307,13 @@
         (progn
           (async-shell-command "killall firefox; chatgpt install")
           (rename-async-buffer-with-truncated-lines "ChatGPT"))
-        (switch-to-buffer-other-window buffer-name))))
+      (switch-to-buffer-other-window buffer-name))))
 
-;;;;;;;;
+;;;;;;;;;;;;;;;;;
 ;; docker-compose
-;;;;;;;;
+;;;;;;;;;;;;;;;;;
+
+;; mnemonics for running/building docker compose
 
 (defun docker-compose-all-impl (down build daemon)
   "runs docker-compose"
@@ -272,15 +341,15 @@
   "docker compose down; build then up in daemon"
   (interactive) (docker-compose-all-impl t t t))
 
-;;;;;;;;
+;;;;;;;;;;;
 ;; flycheck
-;;;;;;;;
+;;;;;;;;;;;
 (after! flycheck-mode
   (setq flycheck-disabled-checkers (cl-pushnew python-pylint flycheck-disabled-checkers)))
 
-;;;;;;;;
-;; emacs ipython notebook
-;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ein (emacs ipython notebook)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (map! "C-c C-d" #'ein:worksheet-kill-cell)
 
 (defun elpy-ein-enable (&optional _ignored)
@@ -310,3 +379,16 @@
              (when (string= major-mode 'ein:notebook-mode)
                (ein:notebook-mode)  ;; update codecell fontification
                (elpy-mode t)))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; hylang
+;; hy is supported in doom :lang section
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun hy-shell-eval-before-cursor ()
+  (interactive)
+  (shell-eval-before-cursor #'hy-shell--send))
+
+(after! hy-mode
+  (map! :map hy-mode-map
+        "C-c C-r" #'hy-shell-eval-before-cursor
+        "C-c C-v" #'hy-shell-eval-region))

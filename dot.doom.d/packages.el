@@ -53,4 +53,5 @@
 (package! visual-fill-column)
 (package! org-present :recipe (:host github :repo  "rlister/org-present"))
 (package! ob-ipython)
+(package! ob-hy)
 (package! elpy)
