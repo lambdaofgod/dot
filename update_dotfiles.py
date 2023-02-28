@@ -24,7 +24,7 @@ class Main:
         """
 
         @staticmethod
-        def update_local_config(
+        def update_local(
             doom_config_dir=DoomSettings.doom_config_dir,
             repo_config_dir=DoomSettings.repo_config_dir,
             backup_dir="~/.bkp.doom.d",
@@ -40,7 +40,7 @@ class Main:
                 shutil.copy(config_file, doom_config_dir)
 
         @staticmethod
-        def update_repo_config(
+        def update_repo(
             doom_config_dir=DoomSettings.doom_config_dir,
             repo_config_dir=DoomSettings.repo_config_dir,
             backup_dir="bkp.dot.doom.d",

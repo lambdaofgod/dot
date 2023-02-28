@@ -129,10 +129,30 @@
     (interactive)
     (switch-to-buffer "*Messages*"))
 
+;; make interactive function from a function
+(defmacro mklambdai (expr)
+    `(lambda () (interactive) ,expr))
+
+(defun dump-buffer-to-logfile ()
+    (interactive)
+   (let ((filename (concat "~/" (downcase (buffer-name)) ".log")))
+    (set-visited-file-name filename)
+    (save-buffer)
+    (set-visited-file-name nil)))
+
 ;;;;;;;;
 ;; navigation
 ;;;;;;;;
-;;;;;;;;
+;; medsi azure
+(setq browse-url-browser-function 'browse-url-generic
+      browse-url-generic-program "brave-browser")
+
+(map!
+    :leader
+    :desc "go to project git repository"
+    "g g" (mklambdai (browse-url "https://dev.azure.com/medsi/_git/apteki")))
+
+
 ;; go to this config
 
 (map! :leader
@@ -202,34 +222,43 @@
 ;;;;;;;;
 ;; magit
 ;;;;;;;;
-(map! :leader "m s" #'magit-status)
-(map! :leader "m c" #'magit-checkout)
+;;;;;;;;
+(map!
+    :leader
+    :desc "magit"
+    :prefix
+    "m"
+    :desc "status"
+    "s" #'magit-status
+    "c" #'magit-checkout)
+
+(map! :map 'override "M-s n" #'smerge-next)
+(map! :map 'override "M-s p" #'smerge-prev)
 (map! :map 'override "M-s o" #'smerge-keep-other)
 (map! :map 'override "M-s m" #'smerge-keep-mine)
 
 ;;;;;;;;
 ;; roam
 ;;;;;;;;
-;; (use-package org-roam
-;;     :ensure t
-;;     :custom
-;;     (org-roam-directory (file-truename "/path/to/org-files/"))
-;;     (org-roam-directory (file-truename "~/Projects/org/roam/"))
-;;     (org-roam-index-file (file-truename"~/Projects/org/roam/index.org")
-
-;;         :bind (("C-c n l" . org-roam-buffer-toggle
-;;                   ("C-c n f" . org-roam-node-find)
-;;                   ("C-c n g" . org-roam-graph)
-;;                   ("C-c n i" . org-roam-node-insert)
-;;                   ("C-c n c" . org-roam-capture)
-;;                   ;; Dailies
-;;                   ("C-c n j" . org-roam-dailies-capture-today)))
-;;         :config
-;;         ;; If you're using a vertical completion framework, you might want a more informative completion interface
-;;         (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
-;;         (org-roam-db-autosync-mode)
-;;         ;; If using org-roam-protocol
-;;         (require 'org-roam-protocol)))
+(use-package org-roam
+    :ensure t
+    :custom
+    (org-roam-directory (file-truename "/path/to/org-files/"))
+    (org-roam-directory (file-truename "~/Projects/org/roam/"))
+    (org-roam-index-file (file-truename"~/Projects/org/roam/index.org")
+        :bind (
+                  ("C-c n l" . org-roam-buffer-toggle)
+                  ("C-c n f" . org-roam-node-find)
+                  ("C-c n g" . org-roam-graph)
+                  ("C-c n i" . org-roam-node-insert)
+                  ("C-c n c" . org-roam-capture)
+                  ("C-c n j" . org-roam-dailies-capture-today))
+        :config
+        ;; If you're using a vertical completion framework, you might want a more informative completion interface
+        (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+        (org-roam-db-autosync-mode)
+        ;; If using org-roam-protocol
+        (require 'org-roam-protocol)))
 (after! org)
 
 (defun org-mode-sync ()
@@ -272,7 +301,7 @@
 ;;;;;;;;
 ;; babel
 ;;;;;;;;
-(defvar ipython-code-block-args "ipython :session :results raw drawer :exports both")
+
 
 (defun insert-org-mode-code-block (code-block-args)
     (let* (
@@ -282,14 +311,23 @@
             (insert
                 (concat "#+BEGIN_SRC " code-block-args "\n\n" code-block-end))
             (backward-char n-backward))))
+(defvar default-code-block-args " :session :results raw drawer :exports both")
 
-(defun insert-ipython-org-mode-code-block ()
-    (interactive)
-    (insert-org-mode-code-block ipython-code-block-args))
+
+
+(defun insert-lang-org-mode-code (lang-name)
+    (insert-org-mode-code-block (concat lang-name default-code-block-args)))
+
 
 (map!
     :map 'override
-    "C-c i" #'insert-ipython-org-mode-code-block)
+    :prefix "C-c i"
+    :desc "insert ipython code block"
+    "i" (mklambdai (insert-lang-org-mode-code "ipython"))
+    :desc "insert python code block"
+    "p" (mklambdai (insert-lang-org-mode-code "python")))
+
+
 
 (after! org-babel
     (org-babel-do-load-languages
@@ -385,6 +423,10 @@
                         (ein:notebook-mode)  ;; update codecell fontification
                         (elpy-mode t)))))))
 
+(add-hook 'ein:notebook-mode-hook
+    (lambda () (local-set-key (kbd "C-c b") #'ein:worksheet-insert-cell-below)))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; hylang
 ;; hy is supported in doom :lang section
@@ -397,3 +439,4 @@
     (map! :map hy-mode-map
         "C-c C-r" #'hy-shell-eval-before-cursor
         "C-c C-v" #'hy-shell-eval-region))
+
