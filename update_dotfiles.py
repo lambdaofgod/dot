@@ -56,7 +56,7 @@ class Main:
                 shutil.copy(config_file, repo_config_dir)
 
         @staticmethod
-        def run_doom_command(doom_command):
+        def run(doom_command):
             """
             run doom install/sync
             """

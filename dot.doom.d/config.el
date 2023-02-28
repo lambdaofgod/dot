@@ -142,17 +142,6 @@
 
 ;;;;;;;;
 ;; navigation
-;;;;;;;;
-;; medsi azure
-(setq browse-url-browser-function 'browse-url-generic
-      browse-url-generic-program "brave-browser")
-
-(map!
-    :leader
-    :desc "go to project git repository"
-    "g g" (mklambdai (browse-url "https://dev.azure.com/medsi/_git/apteki")))
-
-
 ;; go to this config
 
 (map! :leader
@@ -162,7 +151,6 @@
     "c" #'doom/goto-private-config-file
     :desc "go to doom init"
     "i" #'doom/goto-private-init-file)
-
 
 ;; window navigation
 (map!
@@ -190,6 +178,25 @@
 (map!
     :leader "r c" #'comment-region
     :leader "r u" #'uncomment-region)
+
+;; hyperbole
+(after! hyperbole
+    (define-key hyperbole-mode-map (kbd "M-]") #'action-key)
+    (define-key hyperbole-mode-map (kbd "M-[") #'other-window))
+
+
+
+;;;;;;;;
+;; medsi azure
+(setq browse-url-browser-function 'browse-url-generic
+      browse-url-generic-program "brave-browser")
+
+(map!
+    :leader
+    :desc "go to project git repository"
+    "g g" (mklambdai (browse-url "https://dev.azure.com/medsi/_git/apteki")))
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;; clipboard copy-paste
