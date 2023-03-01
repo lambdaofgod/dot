@@ -55,3 +55,6 @@
 (package! ob-ipython)
 (package! ob-hy)
 (package! elpy)
+(package! hyperbole)
+(package! python-black)
+(package! org-ref)

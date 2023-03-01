@@ -6,8 +6,8 @@
 
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets. It is optional.
-(setq user-full-name "John Doe"
-    user-mail-address "john@doe.com")
+(setq user-full-name ""
+    user-mail-address "")
 
 ;; Doom exposes five (optional) variables for controlling fonts in Doom:
 ;;
@@ -191,12 +191,6 @@
 (setq browse-url-browser-function 'browse-url-generic
       browse-url-generic-program "brave-browser")
 
-(map!
-    :leader
-    :desc "go to project git repository"
-    "g g" (mklambdai (browse-url "https://dev.azure.com/medsi/_git/apteki")))
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;; clipboard copy-paste
@@ -243,6 +237,14 @@
 (map! :map 'override "M-s p" #'smerge-prev)
 (map! :map 'override "M-s o" #'smerge-keep-other)
 (map! :map 'override "M-s m" #'smerge-keep-mine)
+
+
+;; org
+(after! org-ref
+    (setq shared-root "~/Projects/shared")
+    (defun get-path-in-shared-root (fname) (f-join shared-root fname))
+    (defun get-path-in-org-root (fname) (f-join shared-root "org" fname))
+    (setq bibtex-completion-bibliography (mapcar #'get-path-in-org-root ["refs.bib" "mgr_refs.bib"])))
 
 ;;;;;;;;
 ;; roam
@@ -333,7 +335,6 @@
     "i" (mklambdai (insert-lang-org-mode-code "ipython"))
     :desc "insert python code block"
     "p" (mklambdai (insert-lang-org-mode-code "python")))
-
 
 
 (after! org-babel
