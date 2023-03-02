@@ -123,7 +123,6 @@
     (funcall shell-eval
         (get-buffer-contents-up-to-cursor)))
 
-
 (defun goto-messages-buffer ()
     "Switch to the *Messages* buffer."
     (interactive)
@@ -133,6 +132,7 @@
 (defmacro mklambdai (expr)
     `(lambda () (interactive) ,expr))
 
+;; dump buffer contents in home to a file named like the buffer
 (defun dump-buffer-to-logfile ()
     (interactive)
    (let ((filename (concat "~/" (downcase (buffer-name)) ".log")))
@@ -310,31 +310,15 @@
 ;;;;;;;;
 ;; babel
 ;;;;;;;;
-
-
-(defun insert-org-mode-code-block (code-block-args)
-    (let* (
-              (code-block-end "#+END_SRC")
-              (n-backward (+ 1 (length code-block-end))))
-        (progn
-            (insert
-                (concat "#+BEGIN_SRC " code-block-args "\n\n" code-block-end))
-            (backward-char n-backward))))
-(defvar default-code-block-args " :session :results raw drawer :exports both")
-
-
-
-(defun insert-lang-org-mode-code (lang-name)
-    (insert-org-mode-code-block (concat lang-name default-code-block-args)))
-
+(load! "blocks.el")
 
 (map!
     :map 'override
     :prefix "C-c i"
     :desc "insert ipython code block"
-    "i" (mklambdai (insert-lang-org-mode-code "ipython"))
+    "i" (mklambdai (insert-lang-org-mode-code "ipython" (buffer-name)))
     :desc "insert python code block"
-    "p" (mklambdai (insert-lang-org-mode-code "python")))
+    "p" (mklambdai (insert-lang-org-mode-code "python" (buffer-name))))
 
 
 (after! org-babel
@@ -447,4 +431,6 @@
     (map! :map hy-mode-map
         "C-c C-r" #'hy-shell-eval-before-cursor
         "C-c C-v" #'hy-shell-eval-region))
+
+
 
