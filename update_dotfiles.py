@@ -1,9 +1,10 @@
 #!/usr/bin/python3
-import fire
+import os
 import shutil
 import subprocess
-import os
 from pathlib import Path as P
+
+import fire
 
 
 class DoomSettings:
@@ -38,7 +39,8 @@ class Main:
                 shutil.rmtree(backup_dir)
             shutil.copytree(doom_config_dir, backup_dir)
             for config_file in P(repo_config_dir).rglob("*.el"):
-                shutil.copy(config_file, doom_config_dir)
+                print("copying", str(config_file))
+            shutil.copytree(repo_config_dir, doom_config_dir, dirs_exist_ok=True)
 
         @staticmethod
         def update_repo(
@@ -54,7 +56,8 @@ class Main:
                 shutil.rmtree(backup_dir)
             shutil.copytree(repo_config_dir, backup_dir)
             for config_file in P(doom_config_dir).rglob("*.el"):
-                shutil.copy(config_file, repo_config_dir)
+                print("copying", str(config_file))
+            shutil.copytree(doom_config_dir, repo_config_dir, dirs_exist_ok=True)
 
         @staticmethod
         def run(doom_command):

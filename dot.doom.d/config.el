@@ -132,7 +132,7 @@
 (defmacro mklambdai (expr)
     `(lambda () (interactive) ,expr))
 
-;; dump buffer contents in home to a file named like the buffer
+;; dump buffer contents to
 (defun dump-buffer-to-logfile ()
     (interactive)
    (let ((filename (concat "~/" (downcase (buffer-name)) ".log")))
@@ -184,7 +184,22 @@
     (define-key hyperbole-mode-map (kbd "M-]") #'action-key)
     (define-key hyperbole-mode-map (kbd "M-[") #'other-window))
 
+;;
+;; search-replace
+;;
+(map!
+    :leader "s r" #'counsel-rg)
 
+
+(defun swiper-replace ()
+  "Swiper replace with mc selction."
+  (interactive)
+  (run-at-time nil nil (lambda ()
+                         (ivy-wgrep-change-to-wgrep-mode)))
+  (ivy-occur))
+
+
+(map! :map ivy-minibuffer-map "C-c C-e" 'swiper-replace)
 
 ;;;;;;;;
 ;; medsi azure
@@ -310,7 +325,7 @@
 ;;;;;;;;
 ;; babel
 ;;;;;;;;
-(load! "blocks.el")
+(load! "util/blocks.el")
 
 (map!
     :map 'override
@@ -344,37 +359,7 @@
                 (rename-async-buffer-with-truncated-lines "ChatGPT"))
             (switch-to-buffer-other-window buffer-name))))
 
-;;;;;;;;;;;;;;;;;
-;; docker-compose
-;;;;;;;;;;;;;;;;;
 
-;; mnemonics for running/building docker compose
-
-(defun docker-compose-all-impl (down build daemon)
-    "runs docker-compose"
-    (let*
-        ((buffer-name "Docker compose")
-         (as-daemon-str (if daemon "; -d" ""))
-         (down-str (if down "docker-compose down;" ""))
-         (build-str (if build "docker-compose build;" ""))
-         (command (concat down-str build-str "docker-compose up" as-daemon-str)))
-        (progn
-            (when (get-buffer buffer-name) (kill-buffer buffer-name))
-            (async-shell-command command)
-            (rename-async-buffer-with-truncated-lines buffer-name))))
-
-(defun dup ()
-    "docker compose up"
-    (interactive) (docker-compose-all-impl nil nil nil))
-(defun dupd ()
-    "docker compose down then up in daemon"
-    (interactive) (docker-compose-all-impl nil nil t))
-(defun ddup ()
-    "docker compose down; build then up"
-    (interactive) (docker-compose-all-impl t t nil))
-(defun ddupd ()
-    "docker compose down; build then up in daemon"
-    (interactive) (docker-compose-all-impl t t t))
 
 ;;;;;;;;;;;
 ;; flycheck
@@ -433,4 +418,4 @@
         "C-c C-v" #'hy-shell-eval-region))
 
 
-
+(load! "util/docker.el")
