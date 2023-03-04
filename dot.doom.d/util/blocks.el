@@ -24,16 +24,10 @@
 ;;;;;;;;;;
 
 (defvar chatgpt-init-python-code (format "
-import openai
-openai.api_key = open('%s/openai_key.txt').read().strip()
+from mlutil import chatgpt_api 
+api_key_path = '%s' # specify file path if OPENAI_API_KEY is not in env
 
-def get_chatgpt_response(text):
-
-    completion = openai.ChatCompletion.create(
-    model='gpt-3.5-turbo',
-    messages=[{'role': 'user', 'content': text}]
-    )
-    return completion['choices'][0]['message']['content']
+chatgpt_client = chatgpt_api.ChatGPTClient(api_key_path, logger=logging.info)
 " org-directory))
 (defvar chatgpt-args (concat "python :session chatgpt " default-code-block-args))
 
@@ -46,4 +40,4 @@ def get_chatgpt_response(text):
 (defun insert-chatgpt-response-code-block (chatgpt-query)
     (interactive "sAsk ChatGPT: ")
     (insert-org-mode-code-block-with-content chatgpt-args
-        (format "get_chatgpt_response('%s')" chatgpt-query)))
+        (format "chatgpt_client.get_chatgpt_response_from_text('%s')" chatgpt-query)))
