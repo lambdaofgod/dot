@@ -255,6 +255,8 @@
 
 
 ;; org
+(load! "util/org.el")
+
 (after! org-ref
     (setq shared-root "~/Projects/shared")
     (defun get-path-in-shared-root (fname) (f-join shared-root fname))
@@ -335,6 +337,13 @@
     :desc "insert python code block"
     "p" (mklambdai (insert-lang-org-mode-code "python" (buffer-name))))
 
+(map!
+    :map 'override
+    :prefix "C-c"
+    "]" #'org-babel-next-src-block
+    "[" #'org-babel-previous-src-block
+    "}" (mklambdai (progn (org-ctrl-c-ctrl-c) (org-babel-next-src-block)))
+    "r" #'org-babel-execute-buffer)
 
 (after! org-babel
     (org-babel-do-load-languages
