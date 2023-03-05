@@ -255,7 +255,8 @@
 
 
 ;; org
-(load! "util/org.el")
+(after! org
+    (load! "util/org.el"))
 
 (after! org-ref
     (setq shared-root "~/Projects/shared")
@@ -285,7 +286,6 @@
         (org-roam-db-autosync-mode)
         ;; If using org-roam-protocol
         (require 'org-roam-protocol)))
-(after! org)
 
 (defun org-mode-sync ()
     (interactive)
@@ -348,7 +348,7 @@
 (after! org-babel
     (org-babel-do-load-languages
         'org-babel-load-languages
-        '((ipython . t) (python . t) (hy . t))))
+        '((ipython . t) (python . t) (hy . t) (latex . t))))
 
 ;;;;;;;;;;
 ;; chatgpt
