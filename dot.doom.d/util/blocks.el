@@ -11,7 +11,7 @@
             (insert
                 (concat code-block-start " " code-block-args "\n" code-block-content "\n" code-block-end))
             (backward-char n-backward))))
-(defvar default-code-block-args " :results both drawer :exports both")
+(defvar default-code-block-args " :exports both")
 
 
 
@@ -27,8 +27,8 @@
 from mlutil import chatgpt_api 
 api_key_path = '%s' # specify file path if OPENAI_API_KEY is not in env
 
-chatgpt_client = chatgpt_api.ChatGPTClient(api_key_path, logger=logging.info)
-" org-directory))
+chatgpt_client = chatgpt_api.ChatGPTClient(api_key_path)
+" "~/.keys"))
 (defvar chatgpt-args (concat "python :session chatgpt " default-code-block-args))
 
 

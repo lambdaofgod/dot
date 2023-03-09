@@ -140,17 +140,34 @@
     (save-buffer)
     (set-visited-file-name nil)))
 
+(defun view-associated-buffer ()
+    (interactive)
+    (when (= 1 (length (window-list))) (split-window-right))
+    (switch-to-buffer-other-window (format "*%s*" (buffer-name))))
+
+
 ;;;;;;;;
 ;; navigation
 ;; go to this config
 
 (map! :leader
+    :map 'override
     :prefix
-    "o"
+    "d"
     :desc "go to doom config"
     "c" #'doom/goto-private-config-file
     :desc "go to doom init"
     "i" #'doom/goto-private-init-file)
+
+(map! :leader
+    :prefix
+    "o"
+    "b" (mklambdai (switch-to-buffer (find-file-noselect "~/.bashrc")))
+    :desc "goto project docker compose"
+    "d" #'doom-open-project-docker-compose
+    :desc "goto chatgpt conversations"
+    "c" (mklambdai  (switch-to-buffer (find-file-noselect "~/Projects/org/chatgpt_conversations.org"))))
+
 
 ;; window navigation
 (map!
@@ -160,6 +177,20 @@
     "C-<down>" #'windmove-down)
 
 ;; buffers
+(defun doom-open-file-in-project (filename)
+  "Find FILENAME in project and open it in a new buffer."
+  (interactive "sFilename: ")
+  (let ((default-directory (doom-modeline--project-root)))
+    (if (file-exists-p filename)
+        (switch-to-buffer (find-file-noselect filename))
+      (message "File %s not found in project" filename))))
+
+(defun doom-open-project-docker-compose ()
+  (interactive)
+  (doom-open-file-in-project "docker-compose.yml"))
+
+(load! "util/docker.el")
+
 (map!
     :desc "Buffer viewing utils"
     :leader
@@ -169,7 +200,11 @@
     :desc "View buffers"
     "b" #'view-buffer
     :desc "elisp repl"
-    "r" #'+emacs-lisp/open-repl)
+    "r" #'+emacs-lisp/open-repl
+    :desc "org babel local python buffer"
+    "p" #'view-associated-buffer)
+
+    
 
 ;; truncation
 (map! :leader "t t" #'toggle-truncate-lines)
@@ -335,7 +370,9 @@
     :desc "insert ipython code block"
     "i" (mklambdai (insert-lang-org-mode-code "ipython" (buffer-name)))
     :desc "insert python code block"
-    "p" (mklambdai (insert-lang-org-mode-code "python" (buffer-name))))
+    "p" (mklambdai (insert-lang-org-mode-code "python" (buffer-name)))
+    :desc "insert elisp code block"
+    "e" (mklambdai (insert-lang-org-mode-code "elisp" (buffer-name))))
 
 (map!
     :map 'override
@@ -365,7 +402,7 @@
             ;; run chatgpt in new buffer if it does not exist
             (progn
                 (async-shell-command "killall firefox; chatgpt install")
-                (rename-async-buffer-with-truncated-lines "ChatGPT"))
+                (rename-async-buffer-with-truncated-lines "*ChatGPT*"))
             (switch-to-buffer-other-window buffer-name))))
 
 
@@ -427,4 +464,3 @@
         "C-c C-v" #'hy-shell-eval-region))
 
 
-(load! "util/docker.el")

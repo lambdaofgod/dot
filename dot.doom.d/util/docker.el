@@ -4,14 +4,15 @@
 
 ;; mnemonics for running/building docker compose
 
+(defvar docker-compose-buffer-name "*Docker Compose*")
 (defun docker-compose-all-impl (down build daemon maybe-service)
     "runs docker-compose"
     (princ (format "maybe-service %s" maybe-service))
     (let*
-        ((buffer-name "Docker compose")
+        ((buffer-name docker-compose-buffer-name)
          (as-daemon-str (if daemon "; -d" ""))
-         (down-str (if down "docker-compose down;" ""))
-         (build-str (if build "docker-compose build;" ""))
+         (down-str (if down (format "docker-compose down %s;" maybe-service) ""))
+         (build-str (if build (format "docker-compose build %s;" maybe-service) ""))
          (service-str (if (eq maybe-service "") maybe-service (concat " ; " maybe-service)))
          (command (concat down-str build-str "docker-compose up" as-daemon-str)))
         (progn
