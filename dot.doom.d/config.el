@@ -377,9 +377,9 @@
 (map!
     :map 'override
     :prefix "C-c"
-    "]" #'org-babel-next-src-block
-    "[" #'org-babel-previous-src-block
-    "}" (mklambdai (progn (org-ctrl-c-ctrl-c) (org-babel-next-src-block)))
+    "j" #'org-babel-next-src-block
+    "k" #'org-babel-previous-src-block
+    "n" (mklambdai (progn (org-ctrl-c-ctrl-c) (org-babel-next-src-block)))
     "r" #'org-babel-execute-buffer)
 
 (after! org-babel
