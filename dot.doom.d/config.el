@@ -78,6 +78,7 @@
 
 ;; helper functions
 ;; clipboard functions
+
 (defun copy-to-clipboard ()
     "Copies selection to x-clipboard."
     (interactive)
@@ -106,6 +107,12 @@
 ;; shell functions
 ;; rename buffer used to run async shell command with 'buffer-name'
 ;; this is useful when running shell commands in the background like docker-compose
+
+(defun fd (expr)
+    (let (
+             (fd-string-res (shell-command-to-string (format "fd %s --base-directory %s" expr (doom-modeline--project-root)))))
+        (split-string fd-string-res split-string-default-separators)))
+
 
 (defun rename-async-buffer-with-truncated-lines (buffer-name)
     (with-current-buffer "*Async Shell Command*"
@@ -144,6 +151,20 @@
     (interactive)
     (when (= 1 (length (window-list))) (split-window-right))
     (switch-to-buffer-other-window (format "*%s*" (buffer-name))))
+
+(defun get-file-dirname (file-path)
+    (-> file-path
+        (file-name-directory)
+        (directory-file-name)
+        (file-name-nondirectory)))
+
+(defun get-buffer-dirname ()
+    (interactive)
+    (->> (buffer-name)
+        (file-name-directory)
+        (directory-file-name)
+        (file-name-nondirectory)))
+
 
 
 ;;;;;;;;
@@ -189,7 +210,6 @@
   (interactive)
   (doom-open-file-in-project "docker-compose.yml"))
 
-(load! "util/docker.el")
 
 (map!
     :desc "Buffer viewing utils"
@@ -198,7 +218,7 @@
     :desc "View message buffer"
     "m" #'goto-messages-buffer
     :desc "View buffers"
-    "b" #'view-buffer
+    "v" #'view-buffer
     :desc "elisp repl"
     "r" #'+emacs-lisp/open-repl
     :desc "org babel local python buffer"
@@ -464,3 +484,4 @@
         "C-c C-v" #'hy-shell-eval-region))
 
 
+(load! "util/docker.el")

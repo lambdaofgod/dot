@@ -28,7 +28,7 @@ from mlutil import chatgpt_api
 api_key_path = '%s' # specify file path if OPENAI_API_KEY is not in env
 
 chatgpt_client = chatgpt_api.ChatGPTClient(api_key_path)
-" "~/.keys"))
+'chatgpt ready'" "~/.keys/openai_key.txt"))
 (defvar chatgpt-args (concat "python :session chatgpt " default-code-block-args))
 
 
