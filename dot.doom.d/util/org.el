@@ -1,18 +1,23 @@
+(defun org/associated-tangle-filename ()
+    (cdr (assoc :tangle (org-babel-parse-header-arguments (buffer-string)))))
+
+(defun org/goto-tangle-filename ()
+    (interactive)
+    (find-file (org/associated-tangle-filename)))
 
 
-
-(defun insert-heading-with-name (name)
+(defun org/insert-heading-with-name (name)
     (progn (org-insert-heading-respect-content)
         (insert name)))
 
-(defun insert-named-sections (section-names)
+(defun org/insert-named-sections (section-names)
     (progn
         (org-insert-subheading "")
         (insert (car section-names))
-        (mapcar #'insert-heading-with-name (cdr section-names))))
+        (mapcar #'org/insert-heading-with-name (cdr section-names))))
 
 
-(defvar paper-report-heading-names
+(defvar org/paper-report-heading-names
     (list
         "TL;DR"
         "Evaluation"
@@ -21,6 +26,6 @@
         "Methods"))
 
 
-(defun insert-paper-report-template ()
+(defun org/insert-paper-report-template ()
     (interactive)
     (insert-named-sections paper-report-heading-names))

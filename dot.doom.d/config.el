@@ -222,7 +222,9 @@
     :desc "elisp repl"
     "r" #'+emacs-lisp/open-repl
     :desc "org babel local python buffer"
-    "p" #'view-associated-buffer)
+    "p" #'view-associated-buffer
+    :desc "go to org babel tangled file"
+    "t" #'org/goto-tangle-filename)
 
     
 
