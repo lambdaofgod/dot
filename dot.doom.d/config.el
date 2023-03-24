@@ -245,7 +245,7 @@
 ;; search-replace
 ;;
 (map!
-    :leader "s r" #'counsel-rg)
+    :leader "s r" #'counsel-projectile-rg)
 
 
 (defun swiper-replace ()
@@ -390,11 +390,18 @@
     :map 'override
     :prefix "C-c i"
     :desc "insert ipython code block"
-    "i" (mklambdai (insert-lang-org-mode-code "ipython" (buffer-name)))
+    "i" (mklambdai (insert-babel-code-block "ipython" (buffer-name)))
     :desc "insert python code block"
-    "p" (mklambdai (insert-lang-org-mode-code "python" (buffer-name)))
+    "p" (mklambdai (insert-babel-code-block "python" (buffer-name)))
     :desc "insert elisp code block"
-    "e" (mklambdai (insert-lang-org-mode-code "elisp" (buffer-name))))
+    "e" (mklambdai (insert-babel-code-block "elisp" (buffer-name)))
+    :desc "latex"
+    "l" (mklambdai (insert-babel-code-block "latex" (buffer-name)))
+    :desc "bash"
+    "b" (mklambdai (insert-babel-code-block "bash" (buffer-name)))
+    :desc "quote"
+    "q" (mklambdai (insert-org-mode-block-with-content "" "" "QUOTE")))
+
 
 (map!
     :map 'override
@@ -487,3 +494,25 @@
 
 
 (load! "util/docker.el")
+
+
+;; dap
+;; (use-package dap-mode
+;;   ;; Uncomment the config below if you want all UI panes to be hidden by default!
+;;   ;; :custom
+;;   ;; (lsp-enable-dap-auto-configure nil)
+;;   ;; :config
+;;   ;; (dap-ui-mode 1)
+
+;;   :config
+;;   ;; Set up Node debugging
+;;   (require 'dap-node)
+;;   (dap-node-setup) ;; Automatically installs Node debug adapter if needed
+
+;;   ;; Bind `C-c l d` to `dap-hydra` for easy access
+;;   (general-define-key
+;;     :keymaps 'lsp-mode-map
+;;     :prefix lsp-keymap-prefix
+;;       "d" '(dap-hydra t :wk "debugger")))
+
+(setq lsp-disabled-clients '(eslint))
