@@ -400,7 +400,9 @@
     :desc "bash"
     "b" (mklambdai (insert-babel-code-block "bash" (buffer-name)))
     :desc "quote"
-    "q" (mklambdai (insert-org-mode-block-with-content "" "" "QUOTE")))
+    "q" (mklambdai (insert-org-mode-block-with-content "" "" "QUOTE"))
+    :desc "chatgpt"
+    "c" #'chatgpt/insert-response-code-block)
 
 
 (map!
