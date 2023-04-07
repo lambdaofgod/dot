@@ -52,10 +52,10 @@ chatgpt_client = chatgpt_api.ChatGPTClient(api_key_path)
 
 (defun initialize-chatgpt-code-block ()
     (interactive)
-    (insert-org-mode-block-with-content chatgpt-args chatgpt-init-python-code))
+    (insert-org-mode-block-with-content chatgpt/args chatgpt-init-python-code))
 
 
 (defun insert-chatgpt-response-code-block (chatgpt-query)
     (interactive "sAsk ChatGPT: ")
-    (insert-org-mode-block-with-content chatgpt-args
+    (insert-org-mode-block-with-content chatgpt/args
         (format "chatgpt_client.get_chatgpt_response_from_text('%s')" chatgpt-query)))
