@@ -1,1 +1,1 @@
-cp -r ~/.doom.d .doom.d
+cp -r ~/.doom.d .

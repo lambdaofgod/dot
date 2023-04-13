@@ -26,6 +26,23 @@
         "Methods"))
 
 
+(defvar org/roam-heading-names
+    (list
+        "TL;DR"
+        "Links"
+        "Datasets"
+        "Results"
+        "Methods"))
+
 (defun org/insert-paper-report-template ()
     (interactive)
-    (insert-named-sections paper-report-heading-names))
+    (org/insert-named-sections org/paper-report-heading-names))
+
+(defun org/insert-roam-template ()
+    (interactive)
+    (org/insert-named-sections org/roam-heading-names))
+
+
+(defun org/insert-template (heading-names)
+    (interactive (list (read-string "Heading names " "TL;DR ")))
+    (org/insert-named-sections (split-string heading-names)))

@@ -400,7 +400,9 @@
     :desc "bash"
     "b" (mklambdai (insert-babel-code-block "bash" (buffer-name)))
     :desc "quote"
-    "q" (mklambdai (insert-org-mode-block-with-content "" "" "QUOTE")))
+    "q" (mklambdai (insert-org-mode-block-with-content "" "" "QUOTE"))
+    :desc "chatgpt"
+    "c" #'chatgpt/insert-response-code-block)
 
 
 (map!
@@ -494,8 +496,8 @@
 
 
 (load! "util/docker.el")
-
-
+(load! "util/roam.el")
+(load! "util/browsin.el")
 ;; dap
 ;; (use-package dap-mode
 ;;   ;; Uncomment the config below if you want all UI panes to be hidden by default!
