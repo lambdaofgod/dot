@@ -25,7 +25,6 @@
                  (backward-char n-backward))))))
 
 
-
 (defvar default-code-block-args " :exports both")
 
 

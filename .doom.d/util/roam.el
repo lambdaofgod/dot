@@ -1,9 +1,7 @@
 (require 'org-roam)
 (require 'org-element)
 (require 'org-id)
-(require 'org-roam)
-(require 'org-element)
-(require 'org-id)
+
 
 (defun concatenate-org-roam-files-recursively (file-id visited-ids current-depth &optional max-expanded-depth)
   "Return concatenated contents of the file with FILE-ID and its org-roam linked files recursively up to MAX-EXPANDED-DEPTH.

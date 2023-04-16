@@ -165,7 +165,21 @@
         (directory-file-name)
         (file-name-nondirectory)))
 
-
+;;;;
+;;;;
+;;;;
+(use-package org-ai
+  :ensure
+  :commands (org-ai-mode)
+  :custom
+  (org-ai-openai-api-token "<ENTER YOUR API TOKEN HERE>")
+  :init
+  (add-hook 'org-mode-hook #'org-ai-mode)
+  :config
+  ;; if you are on the gpt-4 beta:
+  (setq org-ai-default-chat-model "gpt-4")
+  ;; if you are using yasnippet and want `ai` snippets
+  (org-ai-install-yasnippets))
 
 ;;;;;;;;
 ;; navigation
@@ -402,7 +416,9 @@
     :desc "quote"
     "q" (mklambdai (insert-org-mode-block-with-content "" "" "QUOTE"))
     :desc "chatgpt"
-    "c" #'chatgpt/insert-response-code-block)
+    "c" #'chatgpt/insert-response-code-block
+    :desc "org-ai"
+    "a" (mklambdai (insert-org-mode-block-with-content "" "\n" "AI")))
 
 
 (map!
@@ -518,3 +534,6 @@
 ;;       "d" '(dap-hydra t :wk "debugger")))
 
 (setq lsp-disabled-clients '(eslint))
+
+(load! "util/ai.el")
+(load! "util/python.el")
