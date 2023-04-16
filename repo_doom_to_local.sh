@@ -1,2 +1,4 @@
 git pull
-cp -r .doom.d ~/.doom.d
+mkdir -p bkp
+cp -r ~/.doom.d/* bkp/.doom.d
+cp -r .doom.d/* ~/.doom.d
