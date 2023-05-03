@@ -42,6 +42,7 @@
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
 (setq org-directory "~/Projects/org/")
+(setq projectile-project-search-path '("~/Projects"))
 
 
 ;; Whenever you reconfigure a package, make sure to wrap your config in an
@@ -94,16 +95,23 @@
                 (deactivate-mark))
             (message "No region active; can't yank to clipboard!"))))
 
-(defun paste-from-clipboard ()
+(defun get-from-clipboard (do-quote)
+    (let ((clipboard-text
+              (if
+                  (display-graphic-p)
+                  (substring-no-properties (gui-get-selection 'CLIPBOARD))
+                  (shell-command-to-string "xsel -o -b"))))
+        (if do-quote
+            (format "\"%s\"" clipboard-text)
+            clipboard-text)))
+
+(defun paste-from-clipboard (do-quote)
     "Pastes from x-clipboard."
-    (interactive)
-    (if (display-graphic-p)
-        (progn
-            (clipboard-yank)
-            (message "graphics active"))
+    (insert (get-from-clipboard do-quote)))
 
-        (insert (shell-command-to-string "xsel -o -b"))))
-
+(defun paste-from-clipboard (do-quote)
+    "Pastes from x-clipboard."
+        (insert (get-from-clipboard do-quote)))
 ;; shell functions
 ;; rename buffer used to run async shell command with 'buffer-name'
 ;; this is useful when running shell commands in the background like docker-compose
@@ -147,10 +155,20 @@
     (save-buffer)
     (set-visited-file-name nil)))
 
+(defun get-associated-buffer-name (name)
+    "associated Python buffer for org mode file"
+    (format "*%s*" name))
+
+
 (defun view-associated-buffer ()
     (interactive)
     (when (= 1 (length (window-list))) (split-window-right))
-    (switch-to-buffer-other-window (format "*%s*" (buffer-name))))
+    (switch-to-buffer-other-window (get-associated-buffer-name (buffer-name))))
+
+(defun kill-associated-buffer ()
+    (interactive)
+    (kill-buffer (get-associated-buffer-name (buffer-name))))
+
 
 (defun get-file-dirname (file-path)
     (-> file-path
@@ -237,6 +255,8 @@
     "r" #'+emacs-lisp/open-repl
     :desc "org babel local python buffer"
     "p" #'view-associated-buffer
+    :desc "kill org babel local python buffer"
+    "k" #'kill-associated-buffer
     :desc "go to org babel tangled file"
     "t" #'org/goto-tangle-filename)
 
@@ -282,7 +302,8 @@
 ;; clipboard copy-paste
 ;;;;;;;;;;;;;;;;;;;;;;;
 (map! :leader "o y" #'copy-to-clipboard)
-(map! :leader "o p" #'paste-from-clipboard)
+(map! :leader "o p" (mklambdai (paste-from-clipboard nil)))
+(map! :leader "o q" (mklambdai (paste-from-clipboard t)))
 
 ;;;;;;;;;;;;;;;;
 ;; python
@@ -327,7 +348,10 @@
 
 ;; org
 (after! org
-    (load! "util/org.el"))
+    (load! "util/org.el")
+    (map! :map org-mode-map
+        "M-<up>" #'org-babel-previous-src-block
+        "M-<down>" #'org-babel-next-src-block))
 
 (after! org-ref
     (setq shared-root "~/Projects/shared")
@@ -343,20 +367,20 @@
     :custom
     (org-roam-directory (file-truename "/path/to/org-files/"))
     (org-roam-directory (file-truename "~/Projects/org/roam/"))
-    (org-roam-index-file (file-truename"~/Projects/org/roam/index.org")
-        :bind (
-                  ("C-c n l" . org-roam-buffer-toggle)
-                  ("C-c n f" . org-roam-node-find)
-                  ("C-c n g" . org-roam-graph)
-                  ("C-c n i" . org-roam-node-insert)
-                  ("C-c n c" . org-roam-capture)
-                  ("C-c n j" . org-roam-dailies-capture-today))
-        :config
-        ;; If you're using a vertical completion framework, you might want a more informative completion interface
-        (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
-        (org-roam-db-autosync-mode)
-        ;; If using org-roam-protocol
-        (require 'org-roam-protocol)))
+    (org-roam-index-file (file-truename"~/Projects/org/roam/index.org"))
+    :bind (
+                     ("C-c n l" . org-roam-buffer-toggle)
+                     ("C-c n f" . org-roam-node-find)
+                     ("C-c n g" . org-roam-graph)
+                     ("C-c n i" . org-roam-node-insert)
+                     ("C-c n c" . org-roam-capture)
+                     ("C-c n j" . org-roam-dailies-capture-today))
+     :config
+     ;; If you're using a vertical completion framework, you might want a more informative completion interface
+          (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+          (org-roam-db-autosync-mode)
+             ;; If using org-roam-protocol
+          (require 'org-roam-protocol))
 
 (defun org-mode-sync ()
     (interactive)
@@ -396,7 +420,7 @@
 (add-hook 'org-present-mode-quit-hook 'org-present-end)
 
 ;;;;;;;;
-;; babel
+;; org-babel
 ;;;;;;;;
 (load! "util/blocks.el")
 
@@ -427,13 +451,14 @@
     "j" #'org-babel-next-src-block
     "k" #'org-babel-previous-src-block
     "n" (mklambdai (progn (org-ctrl-c-ctrl-c) (org-babel-next-src-block)))
-    "r" #'org-babel-execute-buffer)
+    "r" #'org-babel-execute-buffer
+    "t" #'org-babel-execute-subtree)
 
 (after! org-babel
     (org-babel-do-load-languages
         'org-babel-load-languages
         '((ipython . t) (python . t) (hy . t) (latex . t))))
-
+    
 ;;;;;;;;;;
 ;; chatgpt
 ;;;;;;;;;;
@@ -537,3 +562,41 @@
 
 (load! "util/ai.el")
 (load! "util/python.el")
+
+;;
+;; autocomplete
+;;
+
+(defun add-codeium-completion ()
+  (interactive)
+  (setq completion-at-point-functions
+        (cons 'codeium-completion-at-point
+              completion-at-point-functions))
+  (setq-local company-frontends
+              '(company-pseudo-tooltip-frontend
+                company-preview-frontend))
+  (setq company-minimum-prefix-length 0))
+
+(defun remove-codeium-completion ()
+  (interactive)
+  (setq completion-at-point-functions
+        (delete 'codeium-completion-at-point
+                completion-at-point-functions))
+  (setq company-frontends
+        '(company-box-frontend company-preview-frontend))
+  (setq company-minimum-prefix-length 2))
+(use-package! copilot
+  :hook (prog-mode . copilot-mode)
+  :bind (:map copilot-completion-map
+              ("<tab>" . 'copilot-accept-completion)
+              ("TAB" . 'copilot-accept-completion)
+              ("C-TAB" . 'copilot-accept-completion-by-word)
+              ("C-<tab>" . 'copilot-accept-completion-by-word)))
+
+;;
+;; priorities
+;;
+;;
+(use-package! org-fancy-priorities
+    :config
+    (setq org-fancy-priorities-list '("MUST" "SHOULD" "COULD" "WONT")))

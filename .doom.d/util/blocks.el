@@ -25,6 +25,12 @@
                  (backward-char n-backward))))))
 
 
+(defun insert-org-ai-block ()
+    (interactive)
+    (insert-org-mode-block-with-content "" "" "AI"))
+
+
+
 (defvar default-code-block-args " :exports both")
 
 
@@ -58,3 +64,4 @@ chatgpt_client = chatgpt_api.ChatGPTClient(api_key_path)
     (interactive "sAsk ChatGPT: ")
     (insert-org-mode-block-with-content chatgpt/args
         (format "chatgpt_client.get_chatgpt_response_from_text('%s')" chatgpt-query)))
+

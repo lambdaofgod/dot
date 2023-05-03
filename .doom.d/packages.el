@@ -58,4 +58,9 @@
 (package! hyperbole)
 (package! python-black)
 (package! org-ref)
+(package! codeium :recipe (:host github :repo "Exafunction/codeium.el"))
+(package! eglot-copilot :recipe (:host github :repo "tyler-dodge/eglot-copilot"))
 
+(package! org-fancy-priorities)
+(package! copilot
+  :recipe (:host github :repo "zerolfx/copilot.el" :files ("*.el" "dist")))
