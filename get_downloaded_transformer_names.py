@@ -5,6 +5,7 @@ import urllib
 from functools import wraps
 from types import GeneratorType
 import pandas as pd
+import numpy as np
 
 
 pd.set_option("display.max_colwidth", 500)
@@ -19,7 +20,7 @@ def maybe_get_model_name(conf):
         return "/".join(model_name)
 
 
-def get_size(file_path, unit='gb'):
+def get_size(file_path, unit):
     file_size = os.path.getsize(file_path)
     exponents_map = {'bytes': 0, 'kb': 1, 'mb': 2, 'gb': 3}
     if unit not in exponents_map:
@@ -30,7 +31,7 @@ def get_size(file_path, unit='gb'):
         return round(size, 3)
 
 
-def get_transformers_model_names(cache_dir):
+def get_transformers_model_names(cache_dir, unit):
     cache_dir_path = P(cache_dir).expanduser()
     print(cache_dir_path)
     config_files = P(cache_dir_path).rglob("*.json")
@@ -40,16 +41,16 @@ def get_transformers_model_names(cache_dir):
             maybe_model_name = maybe_get_model_name(conf)
             model_fname = P(str(fname).replace(".json", ""))
             try:
-                model_size = get_size(model_fname) 
+                model_size = get_size(model_fname, unit=unit) 
             except:
-                model_size = 0
+                model_size = np.nan
             if maybe_model_name:
-                yield {"model_name": maybe_model_name, "path": model_fname.relative_to(cache_dir_path), "model_size": model_size}
+                yield {"model_name": maybe_model_name, "path": model_fname.relative_to(cache_dir_path), f"model_size[{unit}]": model_size}
 
 
-def get_downloaded_models_metadata(cache_dir="~/.cache/huggingface/transformers"):
-    model_metadata = pd.DataFrame.from_records(get_transformers_model_names(cache_dir))
-    return model_metadata.sort_values(by="model_size", ascending=False)
+def get_downloaded_models_metadata(cache_dir="~/.cache/huggingface/transformers", unit="gb"):
+    model_metadata = pd.DataFrame.from_records(get_transformers_model_names(cache_dir, unit))
+    return model_metadata.dropna().sort_values(by=f"model_size[{unit}]", ascending=False).drop_duplicates(["model_name"])
 
 if __name__ == "__main__":
     print(get_downloaded_models_metadata())
