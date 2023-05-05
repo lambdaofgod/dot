@@ -35,12 +35,13 @@
 
 
 
-(defun insert-babel-code-block (lang-name &optional maybe-session-name maybe-code-block-args)
+(defun insert-babel-code-block (lang-name &optional maybe-session-name maybe-code-block-args async)
     (let
         ((code-block-args (or maybe-code-block-args default-code-block-args))
-         (session-name (or maybe-session-name (buffer-name))))
+         (session-name (or maybe-session-name (buffer-name)))
+         (use-async (if async " :async" "")))
       (insert-org-mode-block-with-content
-        (concat lang-name " :session " session-name " " default-code-block-args) "")))
+        (concat lang-name " :session " session-name " " default-code-block-args use-async) "")))
 
 ;;;;;;;;;;
 ;; ChatGPT

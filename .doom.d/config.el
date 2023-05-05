@@ -430,7 +430,7 @@
     :desc "insert ipython code block"
     "i" (mklambdai (insert-babel-code-block "ipython" (buffer-name)))
     :desc "insert python code block"
-    "p" (mklambdai (insert-babel-code-block "python" (buffer-name)))
+    "p" (mklambdai (insert-babel-code-block "python" (buffer-name) "" t))
     :desc "insert elisp code block"
     "e" (mklambdai (insert-babel-code-block "elisp" (buffer-name)))
     :desc "latex"
