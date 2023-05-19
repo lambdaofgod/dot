@@ -11,7 +11,7 @@
         "rust:cargo"
         "fd"
         "ripgrep"
-        "texlive-base"
+        ;;"texlive-base"
         "glibc-locales"
         "emacs-geiser-guile"
         "emacs-geiser"
@@ -21,4 +21,5 @@
         "autojump"
         "fzf"
 	"alacritty"
-	"sway"))
+	"sway"
+	"emacs@28.2"))

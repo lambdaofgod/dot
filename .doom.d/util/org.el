@@ -43,6 +43,19 @@
     (org/insert-named-sections org/roam-heading-names))
 
 
-(defun org/insert-template (heading-names)
-    (interactive (list (read-string "Heading names " "TL;DR ")))
-    (org/insert-named-sections (split-string heading-names)))
+(defun org/insert-template (separator heading-names)
+    (interactive
+        (list
+            (read-string "Separator (default \"+\"): " "+" nil "+")
+            (read-string "Heading names:" "TL;DR" nil "TL;DR")))
+    (org/insert-named-sections (split-string heading-names separator)))
+
+
+(defun org/goto-tangle-file ()
+  "open the file specified in the `tangle' header property in a new buffer."
+  (interactive)
+  (let* ((header-args-str (org-entry-get (point) "header-args" :inherit))
+         (tangled-file (nth 1 (s-split " " header-args-str))))
+    (if tangled-file
+        (find-file tangled-file))
+    (print tangled-file)))

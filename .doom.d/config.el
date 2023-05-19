@@ -219,7 +219,9 @@
     :desc "goto project docker compose"
     "d" #'doom-open-project-docker-compose
     :desc "goto chatgpt conversations"
-    "c" (mklambdai  (switch-to-buffer (find-file-noselect "~/Projects/org/chatgpt_conversations.org"))))
+    "c" (mklambdai  (switch-to-buffer (find-file-noselect "~/Projects/org/chatgpt_conversations.org")))
+    :desc "goto tangle file"
+    "t" #'org/goto-tangle-file)
 
 
 ;; window navigation
@@ -295,7 +297,7 @@
 ;;;;;;;;
 ;; medsi azure
 (setq browse-url-browser-function 'browse-url-generic
-      browse-url-generic-program "brave-browser")
+      browse-url-generic-program "firefox")
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;
@@ -430,7 +432,9 @@
     :desc "insert ipython code block"
     "i" (mklambdai (insert-babel-code-block "ipython" (buffer-name)))
     :desc "insert python code block"
-    "p" (mklambdai (insert-babel-code-block "python" (buffer-name) "" t))
+    "p" (mklambdai (insert-babel-code-block "python" (buffer-name) ""))
+    :desc "insert async python code block"
+    "P" (mklambdai (insert-babel-code-block "python" (buffer-name) "" t))
     :desc "insert elisp code block"
     "e" (mklambdai (insert-babel-code-block "elisp" (buffer-name)))
     :desc "latex"

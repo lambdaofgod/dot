@@ -15,4 +15,5 @@
     (let ((openai-key-path (read-string "openai key path, default:" openai-api-key-path)))
         (progn
             (setq org-ai-openai-api-token (get-key-from-file openai-key-path))
-            (message (concat "loaded org-openai-api-token")))))
+            (message (concat "loaded org-openai-api-token"))
+            (org-ai-switch-chat-model))))
