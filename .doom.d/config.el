@@ -95,23 +95,21 @@
                 (deactivate-mark))
             (message "No region active; can't yank to clipboard!"))))
 
-(defun get-from-clipboard (do-quote)
+(defun get-from-clipboard (quote-char)
     (let ((clipboard-text
               (if
                   (display-graphic-p)
                   (substring-no-properties (gui-get-selection 'CLIPBOARD))
                   (shell-command-to-string "xsel -o -b"))))
-        (if do-quote
-            (format "\"%s\"" clipboard-text)
-            clipboard-text)))
+        (concat quote-char clipboard-text quote-char)))
 
-(defun paste-from-clipboard (do-quote)
+(defun paste-from-clipboard (quote-char)
     "Pastes from x-clipboard."
-    (insert (get-from-clipboard do-quote)))
+    (insert (get-from-clipboard quote-char)))
 
-(defun paste-from-clipboard (do-quote)
+(defun paste-from-clipboard (quote-char)
     "Pastes from x-clipboard."
-        (insert (get-from-clipboard do-quote)))
+        (insert (get-from-clipboard quote-char)))
 ;; shell functions
 ;; rename buffer used to run async shell command with 'buffer-name'
 ;; this is useful when running shell commands in the background like docker-compose
@@ -304,8 +302,9 @@
 ;; clipboard copy-paste
 ;;;;;;;;;;;;;;;;;;;;;;;
 (map! :leader "o y" #'copy-to-clipboard)
-(map! :leader "o p" (mklambdai (paste-from-clipboard nil)))
-(map! :leader "o q" (mklambdai (paste-from-clipboard t)))
+(map! :leader "o p" (mklambdai (paste-from-clipboard "")))
+(map! :leader "o q" (mklambdai (paste-from-clipboard "\"")))
+(map! :leader "o c" (mklambdai (paste-from-clipboard "```\n")))
 
 ;;;;;;;;;;;;;;;;
 ;; python
@@ -349,11 +348,36 @@
 
 
 ;; org
+
 (after! org
     (load! "util/org.el")
     (map! :map org-mode-map
         "M-<up>" #'org-babel-previous-src-block
-        "M-<down>" #'org-babel-next-src-block))
+        "M-<down>" #'org-babel-next-src-block)
+    (setq org-capture-templates '(
+                                       ("t" "Personal todo" entry (file+headline +org-capture-todo-file "Inbox")
+                                           "* [ ] %U %?\n%i\n%a" :prepend t)
+                                       ("n" "Personal notes" entry
+                                               (file+headline +org-capture-notes-file "Inbox")
+                                               "* %u %?\n%i\n%a" :prepend t)
+                                       ("j" "Journal" entry
+                                               (file+olp+datetree +org-capture-journal-file)
+                                               "* %U %?\n%i\n%a")
+                                       ("p" "Templates for projects")
+                                       ("pt" "Project-local todo" entry
+                                               (file+headline +org-capture-project-todo-file "Inbox")
+                                               "* TODO %?\n%i\n%a" :prepend t)
+                                       ("pn" "Project-local notes" entry
+                                               (file+headline +org-capture-project-notes-file "Inbox")
+                                               "* %U %?\n%i\n%a" :prepend t)
+                                       ("pc" "Project-local changelog" entry
+                                               (file+headline +org-capture-project-changelog-file "Unreleased")
+                                               "* %U %?\n%i\n%a" :prepend t)
+                                       ("o" "Centralized templates for projects")
+                                       ("ot" "Project todo" entry #'+org-capture-central-project-todo-file "* TODO %?\n %i\n %a" :heading "Tasks" :prepend nil)
+                                       ("on" "Project notes" entry #'+org-capture-central-project-notes-file "* %U %?\n %i\n %a" :prepend t :heading "Notes")
+                                       ("oc" "Project changelog" entry #'+org-capture-central-project-changelog-file "* %U %?\n %i\n %a" :prepend t :heading "Changelog"))))
+
 
 (after! org-ref
     (setq shared-root "~/Projects/shared")
@@ -383,6 +407,10 @@
           (org-roam-db-autosync-mode)
              ;; If using org-roam-protocol
           (require 'org-roam-protocol))
+ 
+   
+
+
 
 (defun org-mode-sync ()
     (interactive)
@@ -456,7 +484,9 @@
     "k" #'org-babel-previous-src-block
     "n" (mklambdai (progn (org-ctrl-c-ctrl-c) (org-babel-next-src-block)))
     "r" #'org-babel-execute-buffer
-    "t" #'org-babel-execute-subtree)
+    "t" #'org-babel-execute-subtree
+    "l s" #'org/store-link-to-current-line
+    "l i" #'org/insert-stored-link)
 
 (after! org-babel
     (org-babel-do-load-languages
@@ -604,3 +634,4 @@
 (use-package! org-fancy-priorities
     :config
     (setq org-fancy-priorities-list '("MUST" "SHOULD" "COULD" "WONT")))
+

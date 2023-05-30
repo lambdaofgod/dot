@@ -59,3 +59,20 @@
     (if tangled-file
         (find-file tangled-file))
     (print tangled-file)))
+
+
+(defun org/store-link-to-current-line ()
+  (interactive)
+  (let* ((current-file (buffer-file-name))
+         (current-line (line-number-at-pos))
+         (org-link (format "[[%s::%s][%s - Line %s]]"
+                          current-file
+                          current-line
+                          (file-name-nondirectory current-file)
+                          current-line)))
+    (setq tmp/org-link org-link)
+    (message "Org link stored: %s" org-link)))
+
+(defun org/insert-stored-link ()
+  (interactive)
+  (insert tmp/org-link))
