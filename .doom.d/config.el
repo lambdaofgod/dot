@@ -44,6 +44,7 @@
 (setq org-directory "~/Projects/org/")
 (setq projectile-project-search-path '("~/Projects"))
 
+(setq windmove-wrap-around t)
 
 ;; Whenever you reconfigure a package, make sure to wrap your config in an
 ;; `after!' block, otherwise Doom's defaults may override your settings. E.g.
@@ -634,4 +635,9 @@
 (use-package! org-fancy-priorities
     :config
     (setq org-fancy-priorities-list '("MUST" "SHOULD" "COULD" "WONT")))
+
+
+
+;; conda
+(use-package! conda)
 
