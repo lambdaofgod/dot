@@ -63,13 +63,17 @@
 
 (defun org/store-link-to-current-line ()
   (interactive)
-  (let* ((current-file (buffer-file-name))
+  (let* ((show-full-path nil)
+         (current-file (buffer-file-name))
          (current-line (line-number-at-pos))
-         (org-link (format "[[%s::%s][%s - Line %s]]"
+         (shown-path (if show-full-path current-file (file-name-nondirectory current-file)))
+         (org-link (format "[[%s::%s][%s::%s (in %s)]]"
                           current-file
                           current-line
-                          (file-name-nondirectory current-file)
-                          current-line)))
+                       shown-path
+                       current-line
+                       current-file)))
+
     (setq tmp/org-link org-link)
     (message "Org link stored: %s" org-link)))
 

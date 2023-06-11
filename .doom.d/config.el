@@ -193,9 +193,9 @@
   (add-hook 'org-mode-hook #'org-ai-mode)
   :config
   ;; if you are on the gpt-4 beta:
-  (setq org-ai-default-chat-model "gpt-4")
+  (setq org-ai-default-chat-model "gpt-4"))
   ;; if you are using yasnippet and want `ai` snippets
-  (org-ai-install-yasnippets))
+  ;(org-ai-install-yasnippets))
 
 ;;;;;;;;
 ;; navigation
@@ -635,3 +635,20 @@
     :config
     (setq org-fancy-priorities-list '("MUST" "SHOULD" "COULD" "WONT")))
 
+
+(use-package! conda)
+
+
+(use-package! lsp-mode
+        :config
+    (lsp-register-custom-settings
+        '(("rust-analyzer.cargo.extraEnv"
+           (("LIBTORCH" . "/root/miniconda/lib/python3.10/site-packages/torch")
+            ("LD_LIBRARY_PATH" . "/root/miniconda/lib/python3.10/site-packages/torch/lib")
+            ("LIBTORCH_CXX11_ABI" . "0"))))))
+
+
+(map!
+  :map lsp-mode-map
+   :prefix "C-c"
+      "c" (mklambdai (lsp-rust-analyzer--common-runner lsp)))

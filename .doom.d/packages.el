@@ -51,13 +51,15 @@
 ;(unpin! t)
 
 (package! visual-fill-column)
-(package! org-present :recipe (:host github :repo  "rlister/org-present"))
+;(package! org-present :recipe (:host github :repo  "rlister/org-present"))
 (package! ob-ipython)
 (package! ob-hy)
 (package! elpy)
 (package! hyperbole)
 (package! python-black)
 (package! org-ref)
+(package! conda)
+(package! nu-mode)
 (package! codeium :recipe (:host github :repo "Exafunction/codeium.el"))
 (package! eglot-copilot :recipe (:host github :repo "tyler-dodge/eglot-copilot"))
 
