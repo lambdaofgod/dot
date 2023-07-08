@@ -44,7 +44,6 @@
 (setq org-directory "~/Projects/org/")
 (setq projectile-project-search-path '("~/Projects"))
 
-(setq windmove-wrap-around t)
 
 ;; Whenever you reconfigure a package, make sure to wrap your config in an
 ;; `after!' block, otherwise Doom's defaults may override your settings. E.g.
@@ -185,7 +184,7 @@
 ;;;;
 ;;;;
 ;;;;
-(use-package org-ai
+(use-package! org-ai
   :ensure
   :commands (org-ai-mode)
   :custom
@@ -464,6 +463,8 @@
     "p" (mklambdai (insert-babel-code-block "python" (buffer-name) ""))
     :desc "insert async python code block"
     "P" (mklambdai (insert-babel-code-block "python" (buffer-name) "" t))
+    :desc "insert Rust code block"
+    "r" (mklambdai (insert-babel-code-block "rust" (buffer-name) "" t))
     :desc "insert elisp code block"
     "e" (mklambdai (insert-babel-code-block "elisp" (buffer-name)))
     :desc "latex"
@@ -653,3 +654,5 @@
   :map lsp-mode-map
    :prefix "C-c"
       "c" (mklambdai (lsp-rust-analyzer--common-runner lsp)))
+
+(load! "util/exercism.el")

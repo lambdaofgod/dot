@@ -50,7 +50,6 @@
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;(unpin! t)
 
-(package! conda)
 (package! visual-fill-column)
 ;(package! org-present :recipe (:host github :repo  "rlister/org-present"))
 (package! ob-ipython)
@@ -59,6 +58,7 @@
 (package! hyperbole)
 (package! python-black)
 (package! org-ref)
+(package! org-ai)
 (package! conda)
 (package! nu-mode)
 (package! codeium :recipe (:host github :repo "Exafunction/codeium.el"))
