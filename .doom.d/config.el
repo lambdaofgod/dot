@@ -467,6 +467,8 @@
     "r" (mklambdai (insert-babel-code-block "rust" (buffer-name) "" t))
     :desc "insert elisp code block"
     "e" (mklambdai (insert-babel-code-block "elisp" (buffer-name)))
+    :desc "insert elixir code block"
+    "x" (mklambdai (insert-babel-code-block "elixir" (buffer-name)))
     :desc "latex"
     "l" (mklambdai (insert-babel-code-block "latex" (buffer-name)))
     :desc "bash"
@@ -575,7 +577,16 @@
 (load! "util/docker.el")
 (load! "util/roam.el")
 (load! "util/browsin.el")
+
 ;; dap
+;; (use-package! dap-mode
+;;     (dap-register-debug-template "Rust::GDB Run Configuration"
+;;                                  (list :type "gdb"
+;;                                        :request "launch"
+;;                                        :name "GDB::Run")
+;;                                :gdbpath "rust-gdb"
+;;                                  :target nil
+;;                                  :cwd nil))
 ;; (use-package dap-mode
 ;;   ;; Uncomment the config below if you want all UI panes to be hidden by default!
 ;;   ;; :custom
@@ -642,13 +653,20 @@
 
 
 (use-package! lsp-mode
-        :config
+    :config
     (lsp-register-custom-settings
         '(("rust-analyzer.cargo.extraEnv"
            (("LIBTORCH" . "/root/miniconda/lib/python3.10/site-packages/torch")
             ("LD_LIBRARY_PATH" . "/root/miniconda/lib/python3.10/site-packages/torch/lib")
-            ("LIBTORCH_CXX11_ABI" . "0"))))))
+            ("LIBTORCH_CXX11_ABI" . "0")))))
+    :hook (elixir-mode . lsp)
+    :init (add-to-list 'exec-path "/home/kuba/.lsp/elixir"))
+ 
 
+
+(after! eglot
+    (add-hook 'elixir-mode-hook 'eglot-ensure)
+    (add-to-list 'eglot-server-programs '(elixir-mode  "/home/kuba/.lsp/elixir")))
 
 (map!
   :map lsp-mode-map
@@ -656,3 +674,6 @@
       "c" (mklambdai (lsp-rust-analyzer--common-runner lsp)))
 
 (load! "util/exercism.el")
+(require 'dap-python)
+(after! dap-mode
+  (setq dap-python-debugger 'debugpy))
