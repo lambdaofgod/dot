@@ -380,7 +380,7 @@
 
 
 (after! org-ref
-    (setq shared-root "~/Projects/shared")
+    (setq shared-root "~/Projects")
     (defun get-path-in-shared-root (fname) (f-join shared-root fname))
     (defun get-path-in-org-root (fname) (f-join shared-root "org" fname))
     (setq bibtex-completion-bibliography (mapcar #'get-path-in-org-root ["refs.bib" "mgr_refs.bib"])))
@@ -459,6 +459,8 @@
     :prefix "C-c i"
     :desc "insert ipython code block"
     "i" (mklambdai (insert-babel-code-block "ipython" (buffer-name)))
+    :desc "insert Julia code block"
+    "j" (mklambdai (insert-babel-code-block "julia" (buffer-name)))
     :desc "insert python code block"
     "p" (mklambdai (insert-babel-code-block "python" (buffer-name) ""))
     :desc "insert async python code block"
@@ -632,8 +634,10 @@
   (setq company-frontends
         '(company-box-frontend company-preview-frontend))
   (setq company-minimum-prefix-length 2))
+
 (use-package! copilot
   :hook (prog-mode . copilot-mode)
+  :custom (copilot-node-executable "/home/kuba/.volta/bin/node")
   :bind (:map copilot-completion-map
               ("<tab>" . 'copilot-accept-completion)
               ("TAB" . 'copilot-accept-completion)

@@ -66,4 +66,4 @@
 
 (package! org-fancy-priorities)
 (package! copilot
-  :recipe (:host github :repo "zerolfx/copilot.el" :files ("*.el" "dist")))
+ :recipe (:host github :repo "zerolfx/copilot.el" :files ("*.el" "dist")))
