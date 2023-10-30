@@ -380,7 +380,7 @@
 
 
 (after! org-ref
-    (setq shared-root "~/Projects/shared")
+    (setq shared-root "~/Projects")
     (defun get-path-in-shared-root (fname) (f-join shared-root fname))
     (defun get-path-in-org-root (fname) (f-join shared-root "org" fname))
     (setq bibtex-completion-bibliography (mapcar #'get-path-in-org-root ["refs.bib" "mgr_refs.bib"])))
@@ -633,6 +633,8 @@
         '(company-box-frontend company-preview-frontend))
   (setq company-minimum-prefix-length 2))
 (use-package! copilot
+  :config
+    (setq exec-path (append exec-path '("/home/kuba/.volta/bin")))
   :hook (prog-mode . copilot-mode)
   :bind (:map copilot-completion-map
               ("<tab>" . 'copilot-accept-completion)
