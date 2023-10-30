@@ -459,6 +459,8 @@
     :prefix "C-c i"
     :desc "insert ipython code block"
     "i" (mklambdai (insert-babel-code-block "ipython" (buffer-name)))
+    :desc "insert Julia code block"
+    "j" (mklambdai (insert-babel-code-block "julia" (buffer-name)))
     :desc "insert python code block"
     "p" (mklambdai (insert-babel-code-block "python" (buffer-name) ""))
     :desc "insert async python code block"
@@ -632,10 +634,12 @@
   (setq company-frontends
         '(company-box-frontend company-preview-frontend))
   (setq company-minimum-prefix-length 2))
+
 (use-package! copilot
   :config
     (setq exec-path (append exec-path '("/home/kuba/.volta/bin")))
   :hook (prog-mode . copilot-mode)
+  :custom (copilot-node-executable "/home/kuba/.volta/bin/node")
   :bind (:map copilot-completion-map
               ("<tab>" . 'copilot-accept-completion)
               ("TAB" . 'copilot-accept-completion)
