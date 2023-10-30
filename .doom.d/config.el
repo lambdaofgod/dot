@@ -109,7 +109,7 @@
 
 (defun paste-from-clipboard (quote-char)
     "Pastes from x-clipboard."
-        (insert (get-from-clipboard quote-char)))
+    (insert (get-from-clipboard quote-char)))
 ;; shell functions
 ;; rename buffer used to run async shell command with 'buffer-name'
 ;; this is useful when running shell commands in the background like docker-compose
@@ -148,10 +148,10 @@
 ;; dump buffer contents to
 (defun dump-buffer-to-logfile ()
     (interactive)
-   (let ((filename (concat "~/" (downcase (buffer-name)) ".log")))
-    (set-visited-file-name filename)
-    (save-buffer)
-    (set-visited-file-name nil)))
+    (let ((filename (concat "~/" (downcase (buffer-name)) ".log")))
+        (set-visited-file-name filename)
+        (save-buffer)
+        (set-visited-file-name nil)))
 
 (defun get-associated-buffer-name (name)
     "associated Python buffer for org mode file"
@@ -184,18 +184,20 @@
 ;;;;
 ;;;;
 ;;;;
+(use-package! lsp)
+
 (use-package! org-ai
-  :ensure
-  :commands (org-ai-mode)
-  :custom
-  (org-ai-openai-api-token "<ENTER YOUR API TOKEN HERE>")
-  :init
-  (add-hook 'org-mode-hook #'org-ai-mode)
-  :config
-  ;; if you are on the gpt-4 beta:
-  (setq org-ai-default-chat-model "gpt-4"))
-  ;; if you are using yasnippet and want `ai` snippets
-  ;(org-ai-install-yasnippets))
+    :ensure
+    :commands (org-ai-mode)
+    :custom
+    (org-ai-openai-api-token "<ENTER YOUR API TOKEN HERE>")
+    :init
+    (add-hook 'org-mode-hook #'org-ai-mode)
+    :config
+    ;; if you are on the gpt-4 beta:
+    (setq org-ai-default-chat-model "gpt-4"))
+;; if you are using yasnippet and want `ai` snippets
+                                        ;(org-ai-install-yasnippets))
 
 ;;;;;;;;
 ;; navigation
@@ -231,16 +233,16 @@
 
 ;; buffers
 (defun doom-open-file-in-project (filename)
-  "Find FILENAME in project and open it in a new buffer."
-  (interactive "sFilename: ")
-  (let ((default-directory (doom-modeline--project-root)))
-    (if (file-exists-p filename)
-        (switch-to-buffer (find-file-noselect filename))
-      (message "File %s not found in project" filename))))
+    "Find FILENAME in project and open it in a new buffer."
+    (interactive "sFilename: ")
+    (let ((default-directory (doom-modeline--project-root)))
+        (if (file-exists-p filename)
+            (switch-to-buffer (find-file-noselect filename))
+            (message "File %s not found in project" filename))))
 
 (defun doom-open-project-docker-compose ()
-  (interactive)
-  (doom-open-file-in-project "docker-compose.yml"))
+    (interactive)
+    (doom-open-file-in-project "docker-compose.yml"))
 
 
 (map!
@@ -260,7 +262,7 @@
     :desc "go to org babel tangled file"
     "t" #'org/goto-tangle-filename)
 
-    
+
 
 ;; truncation
 (map! :leader "t t" #'toggle-truncate-lines)
@@ -283,11 +285,11 @@
 
 
 (defun swiper-replace ()
-  "Swiper replace with mc selction."
-  (interactive)
-  (run-at-time nil nil (lambda ()
-                         (ivy-wgrep-change-to-wgrep-mode)))
-  (ivy-occur))
+    "Swiper replace with mc selction."
+    (interactive)
+    (run-at-time nil nil (lambda ()
+                             (ivy-wgrep-change-to-wgrep-mode)))
+    (ivy-occur))
 
 
 (map! :map ivy-minibuffer-map "C-c C-e" 'swiper-replace)
@@ -295,7 +297,7 @@
 ;;;;;;;;
 ;; medsi azure
 (setq browse-url-browser-function 'browse-url-generic
-      browse-url-generic-program "firefox")
+    browse-url-generic-program "firefox")
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;
@@ -313,6 +315,9 @@
 (defun python-shell-eval-before-cursor ()
     (interactive)
     (shell-eval-before-cursor #'python-shell-send-region))
+
+(after! python-mode
+    (add-hook 'python-mode-hook #'lsp!))
 
 (map! :after python-mode
     :map python-mode-map 'override "C-c C-r" #'python-shell-eval-before-cursor
@@ -355,28 +360,28 @@
         "M-<up>" #'org-babel-previous-src-block
         "M-<down>" #'org-babel-next-src-block)
     (setq org-capture-templates '(
-                                       ("t" "Personal todo" entry (file+headline +org-capture-todo-file "Inbox")
-                                           "* [ ] %U %?\n%i\n%a" :prepend t)
-                                       ("n" "Personal notes" entry
-                                               (file+headline +org-capture-notes-file "Inbox")
-                                               "* %u %?\n%i\n%a" :prepend t)
-                                       ("j" "Journal" entry
-                                               (file+olp+datetree +org-capture-journal-file)
-                                               "* %U %?\n%i\n%a")
-                                       ("p" "Templates for projects")
-                                       ("pt" "Project-local todo" entry
-                                               (file+headline +org-capture-project-todo-file "Inbox")
-                                               "* TODO %?\n%i\n%a" :prepend t)
-                                       ("pn" "Project-local notes" entry
-                                               (file+headline +org-capture-project-notes-file "Inbox")
-                                               "* %U %?\n%i\n%a" :prepend t)
-                                       ("pc" "Project-local changelog" entry
-                                               (file+headline +org-capture-project-changelog-file "Unreleased")
-                                               "* %U %?\n%i\n%a" :prepend t)
-                                       ("o" "Centralized templates for projects")
-                                       ("ot" "Project todo" entry #'+org-capture-central-project-todo-file "* TODO %?\n %i\n %a" :heading "Tasks" :prepend nil)
-                                       ("on" "Project notes" entry #'+org-capture-central-project-notes-file "* %U %?\n %i\n %a" :prepend t :heading "Notes")
-                                       ("oc" "Project changelog" entry #'+org-capture-central-project-changelog-file "* %U %?\n %i\n %a" :prepend t :heading "Changelog"))))
+                                     ("t" "Personal todo" entry (file+headline +org-capture-todo-file "Inbox")
+                                         "* [ ] %U %?\n%i\n%a" :prepend t)
+                                     ("n" "Personal notes" entry
+                                         (file+headline +org-capture-notes-file "Inbox")
+                                         "* %u %?\n%i\n%a" :prepend t)
+                                     ("j" "Journal" entry
+                                         (file+olp+datetree +org-capture-journal-file)
+                                         "* %U %?\n%i\n%a")
+                                     ("p" "Templates for projects")
+                                     ("pt" "Project-local todo" entry
+                                         (file+headline +org-capture-project-todo-file "Inbox")
+                                         "* TODO %?\n%i\n%a" :prepend t)
+                                     ("pn" "Project-local notes" entry
+                                         (file+headline +org-capture-project-notes-file "Inbox")
+                                         "* %U %?\n%i\n%a" :prepend t)
+                                     ("pc" "Project-local changelog" entry
+                                         (file+headline +org-capture-project-changelog-file "Unreleased")
+                                         "* %U %?\n%i\n%a" :prepend t)
+                                     ("o" "Centralized templates for projects")
+                                     ("ot" "Project todo" entry #'+org-capture-central-project-todo-file "* TODO %?\n %i\n %a" :heading "Tasks" :prepend nil)
+                                     ("on" "Project notes" entry #'+org-capture-central-project-notes-file "* %U %?\n %i\n %a" :prepend t :heading "Notes")
+                                     ("oc" "Project changelog" entry #'+org-capture-central-project-changelog-file "* %U %?\n %i\n %a" :prepend t :heading "Changelog"))))
 
 
 (after! org-ref
@@ -395,20 +400,20 @@
     (org-roam-directory (file-truename "~/Projects/org/roam/"))
     (org-roam-index-file (file-truename"~/Projects/org/roam/index.org"))
     :bind (
-                     ("C-c n l" . org-roam-buffer-toggle)
-                     ("C-c n f" . org-roam-node-find)
-                     ("C-c n g" . org-roam-graph)
-                     ("C-c n i" . org-roam-node-insert)
-                     ("C-c n c" . org-roam-capture)
-                     ("C-c n j" . org-roam-dailies-capture-today))
-     :config
-     ;; If you're using a vertical completion framework, you might want a more informative completion interface
-          (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
-          (org-roam-db-autosync-mode)
-             ;; If using org-roam-protocol
-          (require 'org-roam-protocol))
- 
-   
+              ("C-c n l" . org-roam-buffer-toggle)
+              ("C-c n f" . org-roam-node-find)
+              ("C-c n g" . org-roam-graph)
+              ("C-c n i" . org-roam-node-insert)
+              ("C-c n c" . org-roam-capture)
+              ("C-c n j" . org-roam-dailies-capture-today))
+    :config
+    ;; If you're using a vertical completion framework, you might want a more informative completion interface
+    (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+    (org-roam-db-autosync-mode)
+    ;; If using org-roam-protocol
+    (require 'org-roam-protocol))
+
+
 
 
 
@@ -459,8 +464,6 @@
     :prefix "C-c i"
     :desc "insert ipython code block"
     "i" (mklambdai (insert-babel-code-block "ipython" (buffer-name)))
-    :desc "insert Julia code block"
-    "j" (mklambdai (insert-babel-code-block "julia" (buffer-name)))
     :desc "insert python code block"
     "p" (mklambdai (insert-babel-code-block "python" (buffer-name) ""))
     :desc "insert async python code block"
@@ -498,7 +501,7 @@
     (org-babel-do-load-languages
         'org-babel-load-languages
         '((ipython . t) (python . t) (hy . t) (latex . t))))
-    
+
 ;;;;;;;;;;
 ;; chatgpt
 ;;;;;;;;;;
@@ -617,30 +620,28 @@
 ;;
 
 (defun add-codeium-completion ()
-  (interactive)
-  (setq completion-at-point-functions
+    (interactive)
+    (setq completion-at-point-functions
         (cons 'codeium-completion-at-point
-              completion-at-point-functions))
-  (setq-local company-frontends
-              '(company-pseudo-tooltip-frontend
-                company-preview-frontend))
-  (setq company-minimum-prefix-length 0))
+            completion-at-point-functions))
+    (setq-local company-frontends
+        '(company-pseudo-tooltip-frontend
+             company-preview-frontend))
+    (setq company-minimum-prefix-length 0))
 
 (defun remove-codeium-completion ()
-  (interactive)
-  (setq completion-at-point-functions
+    (interactive)
+    (setq completion-at-point-functions
         (delete 'codeium-completion-at-point
-                completion-at-point-functions))
-  (setq company-frontends
+            completion-at-point-functions))
+    (setq company-frontends
         '(company-box-frontend company-preview-frontend))
-  (setq company-minimum-prefix-length 2))
-
+    (setq company-minimum-prefix-length 2))
 (use-package! copilot
-  :config
+    :config
     (setq exec-path (append exec-path '("/home/kuba/.volta/bin")))
-  :hook (prog-mode . copilot-mode)
-  :custom (copilot-node-executable "/home/kuba/.volta/bin/node")
-  :bind (:map copilot-completion-map
+    :hook (prog-mode . copilot-mode)
+    :bind (:map copilot-completion-map
               ("<tab>" . 'copilot-accept-completion)
               ("TAB" . 'copilot-accept-completion)
               ("C-TAB" . 'copilot-accept-completion-by-word)
@@ -660,14 +661,13 @@
 
 (use-package! lsp-mode
     :config
-    (lsp-register-custom-settings
-        '(("rust-analyzer.cargo.extraEnv"
-           (("LIBTORCH" . "/root/miniconda/lib/python3.10/site-packages/torch")
-            ("LD_LIBRARY_PATH" . "/root/miniconda/lib/python3.10/site-packages/torch/lib")
-            ("LIBTORCH_CXX11_ABI" . "0")))))
-    :hook (elixir-mode . lsp)
+    ;; (lsp-register-custom-settings
+    ;;     '(("rust-analyzer.cargo.extraEnv"
+    ;;           (("LIBTORCH" . "/root/miniconda/lib/python3.10/site-packages/torch"
+    ;;                ("LD_LIBRARY_PATH" . "/root/miniconda/lib/python3.10/site-packages/torch/lib")
+    ;;                ("LIBTORCH_CXX11_ABI" . "0"))))))
     :init (add-to-list 'exec-path "/home/kuba/.lsp/elixir"))
- 
+
 
 
 (after! eglot
@@ -675,11 +675,11 @@
     (add-to-list 'eglot-server-programs '(elixir-mode  "/home/kuba/.lsp/elixir")))
 
 (map!
-  :map lsp-mode-map
-   :prefix "C-c"
-      "c" (mklambdai (lsp-rust-analyzer--common-runner lsp)))
+    :map lsp-mode-map
+    :prefix "C-c"
+    "c" (mklambdai (lsp-rust-analyzer--common-runner lsp)))
 
 (load! "util/exercism.el")
 (require 'dap-python)
 (after! dap-mode
-  (setq dap-python-debugger 'debugpy))
+    (setq dap-python-debugger 'debugpy))

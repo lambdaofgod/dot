@@ -64,6 +64,8 @@
 (package! codeium :recipe (:host github :repo "Exafunction/codeium.el"))
 (package! eglot-copilot :recipe (:host github :repo "tyler-dodge/eglot-copilot"))
 (package! lsp-julia)
+(package! lsp-ui :recipe (:host github :repo "emacs-lsp/lsp-ui"))
+
 (package! org-roam-ui)
 (package! org-fancy-priorities)
 (package! copilot
