@@ -7,11 +7,12 @@
 (specifications->manifest
   (list
         "nyxt"
-        "rust"
-        "rust:cargo"
+        ;;"rust"
+        ;;"rust:cargo"
         "fd"
         "ripgrep"
-        ;;"texlive-base"
+        "texlive"
+	"texlive-listings"
         "glibc-locales"
         "emacs-geiser-guile"
         "emacs-geiser"

@@ -3,7 +3,7 @@
 ;; Place your private configuration here! Remember, you do not need to run 'doom
 ;; sync' after modifying this file!
 
-
+(load! "paths.el")
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets. It is optional.
 (setq user-full-name ""
@@ -349,6 +349,9 @@
 
 ;; org
 
+(use-package! ox-hugo
+    :after ox)
+
 (after! org
     (load! "util/org.el")
     (map! :map org-mode-map
@@ -376,7 +379,15 @@
                                        ("o" "Centralized templates for projects")
                                        ("ot" "Project todo" entry #'+org-capture-central-project-todo-file "* TODO %?\n %i\n %a" :heading "Tasks" :prepend nil)
                                        ("on" "Project notes" entry #'+org-capture-central-project-notes-file "* %U %?\n %i\n %a" :prepend t :heading "Notes")
-                                       ("oc" "Project changelog" entry #'+org-capture-central-project-changelog-file "* %U %?\n %i\n %a" :prepend t :heading "Changelog"))))
+                                       ("oc" "Project changelog" entry #'+org-capture-central-project-changelog-file "* %U %?\n %i\n %a" :prepend t :heading "Changelog")))
+    (add-to-list 'org-export-backends 'hugo)
+    (setq org-agenda-custom-commands
+      '(("d" "Deadlines"
+         ((agenda ""
+                  ((org-agenda-span 'day)
+                   (org-agenda-time-grid nil)
+                   (org-deadline-warning-days 365)
+                   (org-agenda-entry-types '(:deadline)))))))))
 
 
 (after! org-ref
@@ -406,7 +417,13 @@
           (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
           (org-roam-db-autosync-mode)
              ;; If using org-roam-protocol
-          (require 'org-roam-protocol))
+          (require 'org-roam-protocol)
+          (add-to-list 'display-buffer-alist
+              '("\\*org-roam\\*"
+                (display-buffer-in-side-window)
+                (side . bottom)
+                (slot . 0)
+                (window-height . 0.25))))
  
    
 
@@ -478,7 +495,9 @@
     :desc "quote"
     "q" (mklambdai (insert-org-mode-block-with-content "" "" "QUOTE"))
     :desc "chatgpt"
-    "c" #'chatgpt/insert-response-code-block
+    "C" #'chatgpt/insert-response-code-block
+    :desc "cypher"
+    "c" (mklambdai (insert-babel-code-block "cypher" (buffer-name)))
     :desc "org-ai"
     "a" (mklambdai (insert-org-mode-block-with-content "" "\n" "AI")))
 
@@ -497,7 +516,7 @@
 (after! org-babel
     (org-babel-do-load-languages
         'org-babel-load-languages
-        '((ipython . t) (python . t) (hy . t) (latex . t))))
+        '((ipython . t) (python . t) (hy . t) (latex . t) (mermaid . t))))
     
 ;;;;;;;;;;
 ;; chatgpt
@@ -655,6 +674,16 @@
 
 (use-package! conda)
 
+(use-package! lsp-julia
+  :config
+  (setq lsp-julia-flags '("--project=~/.julia/environments/v1.9" "--startup-file=no" "--history-file=no"))
+  (setq lsp-julia-default-environment "~/.julia/environments/v1.9")
+  (setq lsp-julia-default-environment "~/.julia/environments/v1.9"))
+
+(after! julia-mode
+  (add-hook! 'julia-mode-hook
+    (setq-local lsp-enable-folding t
+                lsp-folding-range-limit 100)))
 
 (use-package! lsp-mode
     :config
@@ -681,3 +710,62 @@
 (require 'dap-python)
 (after! dap-mode
   (setq dap-python-debugger 'debugpy))
+
+(after! elfeed
+    (setq elfeed-search-filter "@2-week-ago")
+    (setq elfeed-feeds
+     '(("https://huggingface.co/blog/feed.xml" ml)
+       ("https://news.mit.edu/topic/mitartificial-intelligence2-rss.xml" ml)
+       ("https://nitter.ktachibana.party/lateinteraction/rss" ml llms))))
+
+(defcustom lsp-ruff-executable "ruff-lsp"
+  "Command to start the Ruff language server."
+  :group 'lsp-python
+  :risky t
+  :type 'file)
+
+;; Register ruff-lsp with the LSP client.
+(lsp-register-client
+    (make-lsp-client
+        :new-connection (lsp-stdio-connection (lambda () (list lsp-ruff-executable)))
+        :activation-fn (lsp-activate-on "python")
+        :add-on? t
+        :server-id 'ruff
+        :initialization-options (lambda ()
+                                    (list :settings
+                                        (cl-list*
+                                          (when
+                                            poetry-project-venv
+                                                (list
+                                                 :interpreter (vector (f-join (f-long poetry-project-venv) "bin" "python3"))
+                                                 :workspace (f-long poetry-project-venv)
+                                                 :path (vector (f-join (f-long poetry-project-venv) "bin" "ruff")))))))))
+(require 'flycheck)
+(flycheck-define-checker python-ruff
+  "A Python syntax and style checker using the ruff utility.
+To override the path to the ruff executable, set
+`flycheck-python-ruff-executable'.
+See URL `http://pypi.python.org/pypi/ruff'."
+  :command ("ruff"
+            "--format=text"
+            (eval (when buffer-file-name
+                    (concat "--stdin-filename=" buffer-file-name)))
+            "-")
+  :standard-input t
+  :error-filter (lambda (errors)
+                  (let ((errors (flycheck-sanitize-errors errors)))
+                    (seq-map #'flycheck-flake8-fix-error-level errors)))
+  :error-patterns
+  ((warning line-start
+            (file-name) ":" line ":" (optional column ":") " "
+            (id (one-or-more (any alpha)) (one-or-more digit)) " "
+            (message (one-or-more not-newline))
+            line-end))
+  :modes python-mode)
+
+(add-to-list 'flycheck-checkers 'python-ruff)
+
+(require 'poetry)
+
+(after! ob-mermaid
+    (setq ob-mermaid-cli-path paths/mmdc-path (shell-command-to-string)))

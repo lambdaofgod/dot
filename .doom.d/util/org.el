@@ -1,3 +1,5 @@
+;; tangle stuff
+
 (defun org/associated-tangle-filename ()
     (cdr (assoc :tangle (org-babel-parse-header-arguments (buffer-string)))))
 
@@ -10,6 +12,7 @@
     (progn (org-insert-heading-respect-content)
         (insert name)))
 
+;; setup for a paper report
 (defun org/insert-named-sections (section-names)
     (progn
         (org-insert-subheading "")
@@ -61,6 +64,8 @@
     (print tangled-file)))
 
 
+;; storing links
+
 (defun org/store-link-to-current-line ()
   (interactive)
   (let* ((show-full-path nil)
@@ -80,3 +85,26 @@
 (defun org/insert-stored-link ()
   (interactive)
   (insert tmp/org-link))
+
+
+;; setting categories
+(defvar org-item-categories
+    '(
+         "article"
+         "paper"
+         "book"
+         "library"
+         "experiment"
+         "project"
+         "idea")
+ "List of categories for org items.")
+
+(defun org-set-category ()
+  "Function to set an org-item's category from a list."
+  (interactive)
+  (let ((property "CATEGORY"))
+    (if (org-at-heading-p)
+        (let* ((completion-ignore-case t)
+               (value (completing-read "Select Category: "
+                                       org-item-categories nil t)))
+          (org-entry-put (point) property value)))))
