@@ -1,0 +1,15 @@
+#+title: Readme
+
+Virtualenvs using poetry
+
+Note: run `poetry config virtualenvs.path .` when creating a new venv
+
+* Using in org-babel
+
+Add this in your org file
+
+For example here we use langchain venv
+
+#+BEGIN_SRC elisp :session README.org  :exports both
+(pyvenv-activate (car (directory-files "~/Projects/dot/python_venvs/langchain" t "langchain")))
+#+END_SRC
