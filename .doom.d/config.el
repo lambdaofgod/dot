@@ -42,7 +42,7 @@
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
 (setq org-directory "~/Projects/org/")
-(setq projectile-project-search-path '("~/Projects"))
+(setq projectile-project-se :service anthropic :model claude-3-opus-20240229arch-path '("~/Projects"))
 
 
 ;; Whenever you reconfigure a package, make sure to wrap your config in an
@@ -109,7 +109,7 @@
 
 (defun paste-from-clipboard (quote-char)
     "Pastes from x-clipboard."
-    (insert (get-from-clipboard quote-char)))
+        (insert (get-from-clipboard quote-char)))
 ;; shell functions
 ;; rename buffer used to run async shell command with 'buffer-name'
 ;; this is useful when running shell commands in the background like docker-compose
@@ -148,10 +148,10 @@
 ;; dump buffer contents to
 (defun dump-buffer-to-logfile ()
     (interactive)
-    (let ((filename (concat "~/" (downcase (buffer-name)) ".log")))
-        (set-visited-file-name filename)
-        (save-buffer)
-        (set-visited-file-name nil)))
+   (let ((filename (concat "~/" (downcase (buffer-name)) ".log")))
+    (set-visited-file-name filename)
+    (save-buffer)
+    (set-visited-file-name nil)))
 
 (defun get-associated-buffer-name (name)
     "associated Python buffer for org mode file"
@@ -184,20 +184,18 @@
 ;;;;
 ;;;;
 ;;;;
-(use-package! lsp)
-
 (use-package! org-ai
-    :ensure
-    :commands (org-ai-mode)
-    :custom
-    (org-ai-openai-api-token "<ENTER YOUR API TOKEN HERE>")
-    :init
-    (add-hook 'org-mode-hook #'org-ai-mode)
-    :config
-    ;; if you are on the gpt-4 beta:
-    (setq org-ai-default-chat-model "gpt-4"))
-;; if you are using yasnippet and want `ai` snippets
-                                        ;(org-ai-install-yasnippets))
+  :ensure
+  :commands (org-ai-mode)
+  :custom
+  (org-ai-openai-api-token "<ENTER YOUR API TOKEN HERE>")
+  :init
+  (add-hook 'org-mode-hook #'org-ai-mode)
+  :config
+  ;; if you are on the gpt-4 beta:
+  (setq org-ai-default-chat-model "gpt-4"))
+  ;; if you are using yasnippet and want `ai` snippets
+  ;(org-ai-install-yasnippets))
 
 ;;;;;;;;
 ;; navigation
@@ -233,16 +231,16 @@
 
 ;; buffers
 (defun doom-open-file-in-project (filename)
-    "Find FILENAME in project and open it in a new buffer."
-    (interactive "sFilename: ")
-    (let ((default-directory (doom-modeline--project-root)))
-        (if (file-exists-p filename)
-            (switch-to-buffer (find-file-noselect filename))
-            (message "File %s not found in project" filename))))
+  "Find FILENAME in project and open it in a new buffer."
+  (interactive "sFilename: ")
+  (let ((default-directory (doom-modeline--project-root)))
+    (if (file-exists-p filename)
+        (switch-to-buffer (find-file-noselect filename))
+      (message "File %s not found in project" filename))))
 
 (defun doom-open-project-docker-compose ()
-    (interactive)
-    (doom-open-file-in-project "docker-compose.yml"))
+  (interactive)
+  (doom-open-file-in-project "docker-compose.yml"))
 
 
 (map!
@@ -262,7 +260,7 @@
     :desc "go to org babel tangled file"
     "t" #'org/goto-tangle-filename)
 
-
+    
 
 ;; truncation
 (map! :leader "t t" #'toggle-truncate-lines)
@@ -285,11 +283,11 @@
 
 
 (defun swiper-replace ()
-    "Swiper replace with mc selction."
-    (interactive)
-    (run-at-time nil nil (lambda ()
-                             (ivy-wgrep-change-to-wgrep-mode)))
-    (ivy-occur))
+  "Swiper replace with mc selction."
+  (interactive)
+  (run-at-time nil nil (lambda ()
+                         (ivy-wgrep-change-to-wgrep-mode)))
+  (ivy-occur))
 
 
 (map! :map ivy-minibuffer-map "C-c C-e" 'swiper-replace)
@@ -297,7 +295,7 @@
 ;;;;;;;;
 ;; medsi azure
 (setq browse-url-browser-function 'browse-url-generic
-    browse-url-generic-program "firefox")
+      browse-url-generic-program "firefox")
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;
@@ -315,9 +313,6 @@
 (defun python-shell-eval-before-cursor ()
     (interactive)
     (shell-eval-before-cursor #'python-shell-send-region))
-
-(after! python-mode
-    (add-hook 'python-mode-hook #'lsp!))
 
 (map! :after python-mode
     :map python-mode-map 'override "C-c C-r" #'python-shell-eval-before-cursor
@@ -386,6 +381,7 @@
                                        ("on" "Project notes" entry #'+org-capture-central-project-notes-file "* %U %?\n %i\n %a" :prepend t :heading "Notes")
                                        ("oc" "Project changelog" entry #'+org-capture-central-project-changelog-file "* %U %?\n %i\n %a" :prepend t :heading "Changelog")))
     (add-to-list 'org-export-backends 'hugo)
+    ;;(add-to-list 'org-latex-packages-alist '("" "buss" t))
     (setq org-agenda-custom-commands
       '(("d" "Deadlines"
          ((agenda ""
@@ -479,8 +475,12 @@
 (map!
     :map 'override
     :prefix "C-c i"
+    :desc "insert sage code block"
+    "s" (mklambdai (insert-babel-code-block "sage" (buffer-name)))
     :desc "insert ipython code block"
     "i" (mklambdai (insert-babel-code-block "ipython" (buffer-name)))
+    :desc "insert Julia code block"
+    "j" (mklambdai (insert-babel-code-block "julia" (buffer-name)))
     :desc "insert python code block"
     "p" (mklambdai (insert-babel-code-block "python" (buffer-name) ""))
     :desc "insert async python code block"
@@ -639,28 +639,28 @@
 ;;
 
 (defun add-codeium-completion ()
-    (interactive)
-    (setq completion-at-point-functions
+  (interactive)
+  (setq completion-at-point-functions
         (cons 'codeium-completion-at-point
-            completion-at-point-functions))
-    (setq-local company-frontends
-        '(company-pseudo-tooltip-frontend
-             company-preview-frontend))
-    (setq company-minimum-prefix-length 0))
+              completion-at-point-functions))
+  (setq-local company-frontends
+              '(company-pseudo-tooltip-frontend
+                company-preview-frontend))
+  (setq company-minimum-prefix-length 0))
 
 (defun remove-codeium-completion ()
-    (interactive)
-    (setq completion-at-point-functions
+  (interactive)
+  (setq completion-at-point-functions
         (delete 'codeium-completion-at-point
-            completion-at-point-functions))
-    (setq company-frontends
+                completion-at-point-functions))
+  (setq company-frontends
         '(company-box-frontend company-preview-frontend))
-    (setq company-minimum-prefix-length 2))
+  (setq company-minimum-prefix-length 2))
+
 (use-package! copilot
-    :config
-    (setq exec-path (append exec-path '("/home/kuba/.volta/bin")))
-    :hook (prog-mode . copilot-mode)
-    :bind (:map copilot-completion-map
+  :hook (prog-mode . copilot-mode)
+  :custom (copilot-node-executable "/home/kuba/.volta/bin/node")
+  :bind (:map copilot-completion-map
               ("<tab>" . 'copilot-accept-completion)
               ("TAB" . 'copilot-accept-completion)
               ("C-TAB" . 'copilot-accept-completion-by-word)
@@ -690,23 +690,45 @@
 
 (use-package! lsp-mode
     :config
-    ;; (lsp-register-custom-settings
-    ;;     '(("rust-analyzer.cargo.extraEnv"
-    ;;           (("LIBTORCH" . "/root/miniconda/lib/python3.10/site-packages/torch"
-    ;;                ("LD_LIBRARY_PATH" . "/root/miniconda/lib/python3.10/site-packages/torch/lib")
-    ;;                ("LIBTORCH_CXX11_ABI" . "0"))))))
+    (lsp-register-custom-settings
+        '(("rust-analyzer.cargo.extraEnv"
+           (("LIBTORCH" . "/root/miniconda/lib/python3.10/site-packages/torch")
+            ("LD_LIBRARY_PATH" . "/root/miniconda/lib/python3.10/site-packages/torch/lib")
+            ("LIBTORCH_CXX11_ABI" . "0")))))
+    (lsp-register-client
+      (make-lsp-client
+       :new-connection
+       (lsp-stdio-connection (list "swipl"
+                                   "-g" "use_module(library(lsp_server))."
+                                   "-g" "lsp_server:main"
+                                   "-t" "halt"
+                                   "--" "stdio"))
+       :major-modes '(prolog-mode)
+       :priority 1
+       :multi-root t
+       :server-id 'prolog-ls))
+    :hook (elixir-mode . lsp)
     :init (add-to-list 'exec-path "/home/kuba/.lsp/elixir"))
+ 
 
-
+(load! "util/mojo.el")
+(use-package eglot
+  :ensure t
+    :defer t
+    :hook (
+           (mojo-mode . eglot-ensure))
+    :config
+    (add-to-list 'eglot-server-programs '(mojo-mode . ("/home/kuba/.modular/pkg/packages.modular.com_max/bin/mojo-lsp-server")))
+    (add-to-list 'eglot-server-programs '(python-mode . ("ruff" "server"))))
 
 (after! eglot
     (add-hook 'elixir-mode-hook 'eglot-ensure)
     (add-to-list 'eglot-server-programs '(elixir-mode  "/home/kuba/.lsp/elixir")))
 
 (map!
-    :map lsp-mode-map
-    :prefix "C-c"
-    "c" (mklambdai (lsp-rust-analyzer--common-runner lsp)))
+  :map lsp-mode-map
+   :prefix "C-c"
+      "c" (mklambdai (lsp-rust-analyzer--common-runner lsp)))
 
 (load! "util/exercism.el")
 (require 'dap-python)
@@ -718,7 +740,8 @@
     (setq elfeed-feeds
      '(("https://huggingface.co/blog/feed.xml" ml)
        ("https://news.mit.edu/topic/mitartificial-intelligence2-rss.xml" ml)
-       ("https://nitter.ktachibana.party/lateinteraction/rss" ml llms))))
+       ("https://nitter.ktachibana.party/GregKamradt/rss" ml llms)
+       ("https://fetchrss.com/rss/65b2319bfa815b18a45b679265b231bafa815b18a45b6793.xml" nlp))))
 
 (defcustom lsp-ruff-executable "ruff-lsp"
   "Command to start the Ruff language server."
@@ -771,3 +794,22 @@ See URL `http://pypi.python.org/pypi/ruff'."
 
 (after! ob-mermaid
     (setq ob-mermaid-cli-path paths/mmdc-path (shell-command-to-string)))
+
+(after! lean4-mode
+    (setq lean4-rootdir "/home/kuba/.elan/"))
+
+;; prolog
+(load! "modules/ediprolog/ediprolog.el")
+(setq ediprolog-system 'swi)
+
+;; latex
+
+;; sage
+(use-package! ob-sagemath
+    :config
+    (setq sage-shell:sage-executable "/home/kuba/micromamba/envs/sage/bin/sage")
+    (setq org-babel-default-header-args:sage '((:session . t) (:results . "output")))
+    (setq org-confirm-babel-evaluate nil)
+    (setq org-export-babel-evaluate nil)
+    (setq org-startup-with-inline-images t))
+ 
