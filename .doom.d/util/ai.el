@@ -23,8 +23,10 @@
 
 (defun set-anthropic-key ()
     (interactive)
-    (let ((anthropic-key-path (read-string "openai key path, default:" anthropic-api-key-path)))
+    (let ((anthropic-key-path (read-string "anthropic key path, default:" anthropic-api-key-path)))
         (progn
             (setq org-ai-anthropic-api-token (get-key-from-file anthropic-key-path))
-            (message (concat "loaded org-anthropic-api-token"))
-            (setq claude-shell-api-token org-ai-anthropic-api-token))))
+            (message (concat "set anthropic api token"))
+            (setq org-ai-openai-api-token org-ai-anthropic-api-token)
+            (setq org-ai-service "anthropic")
+            (org-ai-switch-chat-model))))

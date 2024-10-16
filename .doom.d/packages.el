@@ -79,7 +79,6 @@
    :repo "leanprover/lean4-mode"
    :files ("*.el" "data")))
 
-
 (package! org-ql)
 (package! dired-sidebar)
 (package! sage-shell-mode)

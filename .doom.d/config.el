@@ -193,9 +193,11 @@
   (add-hook 'org-mode-hook #'org-ai-mode)
   :config
   ;; if you are on the gpt-4 beta:
-  (setq org-ai-default-chat-model "gpt-4"))
-  ;; if you are using yasnippet and want `ai` snippets
-  ;(org-ai-install-yasnippets))
+  (add-to-list 'org-ai-chat-models "claude-3-opus-20240229")
+  (add-to-list 'org-ai-chat-models "claude-3-5-sonnet-20240620"))
+ 
+    ;; if you are using yasnippet and want `ai` snippets
+    ;(org-ai-install-yasnippets))
 
 ;;;;;;;;
 ;; navigation
