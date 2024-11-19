@@ -16,18 +16,18 @@
     (pcase (get-block-begin-end maybe-block-type)
         (
             `(,code-block-start ,code-block-end)
-             (let*
+            (let*
                 (
-                  (n-backward (+ 1 (length code-block-end))))
-               (progn
-                 (insert
-                  (concat code-block-start " " code-block-args "\n" code-block-content "\n" code-block-end))
-                 (backward-char n-backward))))))
+                    (n-backward (+ 1 (length code-block-end))))
+                (progn
+                    (insert
+                        (concat code-block-start " " code-block-args "\n" code-block-content "\n" code-block-end))
+                    (backward-char n-backward))))))
 
 
 (defun insert-org-ai-block ()
     (interactive)
-    (insert-org-mode-block-with-content "" "" "AI"))
+    (insert-org-mode-block-with-content (concat ":service " org-ai/service) "" "AI"))
 
 
 
@@ -38,10 +38,10 @@
 (defun insert-babel-code-block (lang-name &optional maybe-session-name maybe-code-block-args async)
     (let
         ((code-block-args (or maybe-code-block-args default-code-block-args))
-         (session-name (or maybe-session-name (buffer-name)))
-         (use-async (if async " :async" "")))
-      (insert-org-mode-block-with-content
-        (concat lang-name " :session " session-name " " default-code-block-args use-async) "")))
+            (session-name (or maybe-session-name (buffer-name)))
+            (use-async (if async " :async" "")))
+        (insert-org-mode-block-with-content
+            (concat lang-name " :session " session-name " " default-code-block-args use-async) "")))
 
 ;;;;;;;;;;
 ;; ChatGPT
