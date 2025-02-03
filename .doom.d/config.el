@@ -3,11 +3,23 @@
 ;; Place your private configuration here! Remember, you do not need to run 'doom
 ;; sync' after modifying this file!
 
+
+
 (load! "paths.el")
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets. It is optional.
 (setq user-full-name ""
-    user-mail-address "")
+      user-mail-address "")
+
+;; mac customization
+(if (eq system-type 'darwin)
+    (progn
+      (setq browse-url-generic-program "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser")
+      (custom-set-variables
+       '(ns-alternate-modifier 'meta)
+       '(ns-command-modifier 'control)
+       '(ns-right-alternate-modifier 'meta)
+       '(ns-right-command-modifier 'super))))
 
 ;; Doom exposes five (optional) variables for controlling fonts in Doom:
 ;;
@@ -83,121 +95,127 @@
 ;; clipboard functions
 
 (defun copy-to-clipboard ()
-    "Copies selection to x-clipboard."
-    (interactive)
-    (if (display-graphic-p)
-        (progn
-            (message "Yanked region to x-clipboard!")
-            (call-interactively 'clipboard-kill-ring-save))
+  "Copies selection to x-clipboard."
+  (interactive)
+  (if (display-graphic-p)
+      (progn
+        (message "Yanked region to x-clipboard!")
+        (call-interactively 'clipboard-kill-ring-save))
 
-        (if (region-active-p)
-            (progn
-                (shell-command-on-region (region-beginning) (region-end) "xsel     -i -b")
-                (message "Yanked region to clipboard!")
-                (deactivate-mark))
-            (message "No region active; can't yank to clipboard!"))))
+    (if (region-active-p)
+        (progn
+          (shell-command-on-region (region-beginning) (region-end) "xsel     -i -b")
+          (message "Yanked region to clipboard!")
+          (deactivate-mark))
+      (message "No region active; can't yank to clipboard!"))))
 
 (defun get-from-clipboard (quote-char)
-    (let ((clipboard-text
-              (if
-                  (display-graphic-p)
-                  (substring-no-properties (gui-get-selection 'CLIPBOARD))
-                  (shell-command-to-string "xsel -o -b"))))
-        (concat quote-char clipboard-text quote-char)))
+  (let ((clipboard-text
+         (if
+             (display-graphic-p)
+             (substring-no-properties (gui-get-selection 'CLIPBOARD))
+           (shell-command-to-string "xsel -o -b"))))
+    (concat quote-char clipboard-text quote-char)))
 
 (defun paste-from-clipboard (quote-char)
-    "Pastes from x-clipboard."
-    (insert (get-from-clipboard quote-char)))
+  "Pastes from x-clipboard."
+  (insert (get-from-clipboard quote-char)))
 
 (defun paste-from-clipboard (quote-char)
-    "Pastes from x-clipboard."
-    (insert (get-from-clipboard quote-char)))
+  "Pastes from x-clipboard."
+  (insert (get-from-clipboard quote-char)))
 ;; shell functions
 ;; rename buffer used to run async shell command with 'buffer-name'
 ;; this is useful when running shell commands in the background like docker-compose
 
 (defun fd (expr)
-    (let (
-             (fd-string-res (shell-command-to-string (format "fd %s --base-directory %s" expr (doom-modeline--project-root)))))
-        (split-string fd-string-res split-string-default-separators)))
+  (let (
+        (fd-string-res (shell-command-to-string (format "fd %s --base-directory %s" expr (doom-modeline--project-root)))))
+    (split-string fd-string-res split-string-default-separators)))
 
 
 (defun rename-async-buffer-with-truncated-lines (buffer-name)
-    (with-current-buffer "*Async Shell Command*"
-        (progn
-            (rename-buffer buffer-name)
-            (toggle-truncate-lines))))
+  (with-current-buffer "*Async Shell Command*"
+    (progn
+      (rename-buffer buffer-name)
+      (toggle-truncate-lines))))
 
 
 ;; buffer manipulation for sending stuff to repl
 (defun get-buffer-contents-up-to-cursor ()
-    (buffer-substring (point-min) (point)))
+  (buffer-substring (point-min) (point)))
 
 (defun shell-eval-before-cursor (shell-eval)
-    "eval contents up to current cursor position using 'shell-eval function'"
-    (funcall shell-eval
-        (get-buffer-contents-up-to-cursor)))
+  "eval contents up to current cursor position using 'shell-eval function'"
+  (funcall shell-eval
+           (get-buffer-contents-up-to-cursor)))
 
 (defun goto-messages-buffer ()
-    "Switch to the *Messages* buffer."
-    (interactive)
-    (switch-to-buffer "*Messages*"))
+  "Switch to the *Messages* buffer."
+  (interactive)
+  (switch-to-buffer "*Messages*"))
 
 ;; make interactive function from a function
 (defmacro mklambdai (expr)
-    `(lambda () (interactive) ,expr))
+  `(lambda () (interactive) ,expr))
 
 ;; dump buffer contents to
 (defun dump-buffer-to-logfile ()
-    (interactive)
-    (let ((filename (concat "~/" (downcase (buffer-name)) ".log")))
-        (set-visited-file-name filename)
-        (save-buffer)
-        (set-visited-file-name nil)))
+  (interactive)
+  (let ((filename (concat "~/" (downcase (buffer-name)) ".log")))
+    (set-visited-file-name filename)
+    (save-buffer)
+    (set-visited-file-name nil)))
 
 (defun get-associated-buffer-name (name)
-    "associated Python buffer for org mode file"
-    (format "*%s*" name))
+  "associated Python buffer for org mode file"
+  (format "*%s*" name))
 
 
 (defun view-associated-buffer ()
-    (interactive)
-    (when (= 1 (length (window-list))) (split-window-right))
-    (switch-to-buffer-other-window (get-associated-buffer-name (buffer-name))))
+  (interactive)
+  (when (= 1 (length (window-list))) (split-window-right))
+  (switch-to-buffer-other-window (get-associated-buffer-name (buffer-name))))
 
 (defun kill-associated-buffer ()
-    (interactive)
-    (kill-buffer (get-associated-buffer-name (buffer-name))))
+  (interactive)
+  (kill-buffer (get-associated-buffer-name (buffer-name))))
 
 
 (defun get-file-dirname (file-path)
-    (-> file-path
-        (file-name-directory)
-        (directory-file-name)
-        (file-name-nondirectory)))
+  (-> file-path
+      (file-name-directory)
+      (directory-file-name)
+      (file-name-nondirectory)))
 
 (defun get-buffer-dirname ()
-    (interactive)
-    (->> (buffer-name)
-        (file-name-directory)
-        (directory-file-name)
-        (file-name-nondirectory)))
+  (interactive)
+  (->> (buffer-name)
+       (file-name-directory)
+       (directory-file-name)
+       (file-name-nondirectory)))
 
 ;;;;
 ;;;;
 ;;;;
+
+
+(load! "util/ai.el")
 (use-package! org-ai
-    :ensure
-    :commands (org-ai-mode org-ai-global-mode)
-    :custom
-    (org-ai-openai-api-token "<ENTER YOUR API TOKEN HERE>")
-    :config
-    ;; if you are on the gpt-4 beta:
-    (add-to-list 'org-ai-chat-models "claude-3-opus-20240229")
-    (add-to-list 'org-ai-chat-models "claude-3-5-sonnet-20240620")
-    :init
-    (add-hook 'org-mode-hook #'org-ai-mode)
-    (org-ai-global-mode))
+  :ensure
+  :commands (org-ai-mode org-ai-global-mode)
+  :custom
+  (org-ai-openai-api-token "<ENTER YOUR API TOKEN HERE>")
+  :config
+  ;; if you are on the gpt-4 beta:
+  (add-to-list 'org-ai-chat-models "claude-3-opus-20240229")
+  (add-to-list 'org-ai-chat-models "claude-3-5-sonnet-20240620")
+  (add-to-list 'org-ai-chat-models "sonar-reasoning")
+  (add-to-list 'org-ai-chat-models "sonar-pro")
+  (add-to-list 'org-ai-chat-models "sonar")
+  :init
+  (add-hook 'org-mode-hook #'org-ai-mode)
+  (org-ai-global-mode))
 
 ;; if you are using yasnippet and want `ai` snippets
                                         ;(org-ai-install-yasnippets))
@@ -207,63 +225,63 @@
 ;; go to this config
 
 (map! :leader
-    :map 'override
-    :prefix
-    "d"
-    :desc "go to doom config"
-    "c" #'doom/goto-private-config-file
-    :desc "go to doom init"
-    "i" #'doom/goto-private-init-file)
+      :map 'override
+      :prefix
+      "d"
+      :desc "go to doom config"
+      "c" #'doom/goto-private-config-file
+      :desc "go to doom init"
+      "i" #'doom/goto-private-init-file)
 
 (map! :leader
-    :prefix
-    "o"
-    "b" (mklambdai (switch-to-buffer (find-file-noselect "~/.bashrc")))
-    :desc "goto project docker compose"
-    "d" #'doom-open-project-docker-compose
-    :desc "goto chatgpt conversations"
-    "c" (mklambdai  (switch-to-buffer (find-file-noselect "~/Projects/org/chatgpt_conversations.org")))
-    :desc "goto tangle file"
-    "t" #'org/goto-tangle-file)
+      :prefix
+      "o"
+      "b" (mklambdai (switch-to-buffer (find-file-noselect "~/.bashrc")))
+      :desc "goto project docker compose"
+      "d" #'doom-open-project-docker-compose
+      :desc "goto chatgpt conversations"
+      "c" (mklambdai  (switch-to-buffer (find-file-noselect "~/Projects/org/chatgpt_conversations.org")))
+      :desc "goto tangle file"
+      "t" #'org/goto-tangle-file)
 
 
 ;; window navigation
 (map!
-    "s-<left>" #'windmove-left
-    "s-<right>" #'windmove-right
-    "s-<up>" #'windmove-up
-    "s-<down>" #'windmove-down)
+ "C-<left>" #'windmove-left
+ "C-<right>" #'windmove-right
+ "C-<up>" #'windmove-up
+ "C-<down>" #'windmove-down)
 
 ;; buffers
 (defun doom-open-file-in-project (filename)
-    "Find FILENAME in project and open it in a new buffer."
-    (interactive "sFilename: ")
-    (let ((default-directory (doom-modeline--project-root)))
-        (if (file-exists-p filename)
-            (switch-to-buffer (find-file-noselect filename))
-            (message "File %s not found in project" filename))))
+  "Find FILENAME in project and open it in a new buffer."
+  (interactive "sFilename: ")
+  (let ((default-directory (doom-modeline--project-root)))
+    (if (file-exists-p filename)
+        (switch-to-buffer (find-file-noselect filename))
+      (message "File %s not found in project" filename))))
 
 (defun doom-open-project-docker-compose ()
-    (interactive)
-    (doom-open-file-in-project "docker-compose.yml"))
+  (interactive)
+  (doom-open-file-in-project "docker-compose.yml"))
 
 
 (map!
-    :desc "Buffer viewing utils"
-    :leader
-    :prefix "v"
-    :desc "View message buffer"
-    "m" #'goto-messages-buffer
-    :desc "View buffers"
-    "v" #'view-buffer
-    :desc "elisp repl"
-    "r" #'+emacs-lisp/open-repl
-    :desc "org babel local python buffer"
-    "p" #'view-associated-buffer
-    :desc "kill org babel local python buffer"
-    "k" #'kill-associated-buffer
-    :desc "go to org babel tangled file"
-    "t" #'org/goto-tangle-filename)
+ :desc "Buffer viewing utils"
+ :leader
+ :prefix "v"
+ :desc "View message buffer"
+ "m" #'goto-messages-buffer
+ :desc "View buffers"
+ "v" #'view-buffer
+ :desc "elisp repl"
+ "r" #'+emacs-lisp/open-repl
+ :desc "org babel local python buffer"
+ "p" #'view-associated-buffer
+ :desc "kill org babel local python buffer"
+ "k" #'kill-associated-buffer
+ :desc "go to org babel tangled file"
+ "t" #'org/goto-tangle-filename)
 
 
 
@@ -272,35 +290,33 @@
 
 ;; commenting
 (map!
-    :leader "r c" #'comment-region
-    :leader "r u" #'uncomment-region)
+ :leader "r c" #'comment-region
+ :leader "r u" #'uncomment-region)
 
 ;; hyperbole
 (after! hyperbole
-    (define-key hyperbole-mode-map (kbd "M-]") #'action-key)
-    (define-key hyperbole-mode-map (kbd "M-[") #'other-window))
+  (define-key hyperbole-mode-map (kbd "M-]") #'action-key)
+  (define-key hyperbole-mode-map (kbd "M-[") #'other-window))
 
 ;;
 ;; search-replace
 ;;
 (map!
-    :leader "s r" #'counsel-projectile-rg)
+ :leader "s r" #'counsel-projectile-rg)
 
 
 (defun swiper-replace ()
-    "Swiper replace with mc selction."
-    (interactive)
-    (run-at-time nil nil (lambda ()
-                             (ivy-wgrep-change-to-wgrep-mode)))
-    (ivy-occur))
+  "Swiper replace with mc selction."
+  (interactive)
+  (run-at-time nil nil (lambda ()
+                         (ivy-wgrep-change-to-wgrep-mode)))
+  (ivy-occur))
 
 
 (map! :map ivy-minibuffer-map "C-c C-e" 'swiper-replace)
 
 ;;;;;;;;
-;; medsi azure
-(setq browse-url-browser-function 'browse-url-generic
-    browse-url-generic-program "firefox")
+(setq browse-url-browser-function 'browse-url-generic)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;
@@ -316,17 +332,17 @@
 ;;;;;;;;;;;;;;;;
 
 (defun python-shell-eval-before-cursor ()
-    (interactive)
-    (shell-eval-before-cursor #'python-shell-send-region))
+  (interactive)
+  (shell-eval-before-cursor #'python-shell-send-region))
 
 (map! :after python-mode
-    :map python-mode-map 'override "C-c C-r" #'python-shell-eval-before-cursor
-    :map python-mode-map "C-c C-v" #'python-shell-send-region)
+      :map python-mode-map 'override "C-c C-r" #'python-shell-eval-before-cursor
+      :map python-mode-map "C-c C-v" #'python-shell-send-region)
 
 ;; black
 (use-package! python-black
-    :demand t
-    :after python)
+  :demand t
+  :after python)
 (add-hook! 'python-mode-hook #'python-black-on-save-mode)
 (map! :leader :desc "Blacken Buffer" "m =" #'python-black-buffer)
 (map! :leader :desc "Blacken Region" "m - r" #'python-black-region)
@@ -338,13 +354,13 @@
 ;;;;;;;;
 ;;;;;;;;
 (map!
-    :leader
-    :desc "magit"
-    :prefix
-    "m"
-    :desc "status"
-    "s" #'magit-status
-    "c" #'magit-checkout)
+ :leader
+ :desc "magit"
+ :prefix
+ "m"
+ :desc "status"
+ "s" #'magit-status
+ "c" #'magit-checkout)
 
 (map! :map 'override "M-s n" #'smerge-next)
 (map! :map 'override "M-s p" #'smerge-prev)
@@ -359,87 +375,91 @@
 
 
 (after! org
-    (load! "util/org.el")
-    (map! :map org-mode-map
+  (load! "util/org.el")
+  (map! :map org-mode-map
         "M-<up>" #'org-babel-previous-src-block
         "M-<down>" #'org-babel-next-src-block)
-    (setq org-capture-templates '(
-                                     ("t" "Personal todo" entry (file+headline +org-capture-todo-file "Inbox")
-                                         "* [ ] %U %?\n%i\n%a" :prepend t)
-                                     ("n" "Personal notes" entry
-                                         (file+headline +org-capture-notes-file "Inbox")
-                                         "* %u %?\n%i\n%a" :prepend t)
-                                     ("j" "Journal" entry
-                                         (file+olp+datetree +org-capture-journal-file)
-                                         "* %U %?\n%i\n%a")
-                                     ("p" "Templates for projects")
-                                     ("pt" "Project-local todo" entry
-                                         (file+headline +org-capture-project-todo-file "Inbox")
-                                         "* TODO %?\n%i\n%a" :prepend t)
-                                     ("pn" "Project-local notes" entry
-                                         (file+headline +org-capture-project-notes-file "Inbox")
-                                         "* %U %?\n%i\n%a" :prepend t)
-                                     ("pc" "Project-local changelog" entry
-                                         (file+headline +org-capture-project-changelog-file "Unreleased")
-                                         "* %U %?\n%i\n%a" :prepend t)
-                                     ("o" "Centralized templates for projects")
-                                     ("ot" "Project todo" entry #'+org-capture-central-project-todo-file "* TODO %?\n %i\n %a" :heading "Tasks" :prepend nil)
-                                     ("on" "Project notes" entry #'+org-capture-central-project-notes-file "* %U %?\n %i\n %a" :prepend t :heading "Notes")
-                                     ("oc" "Project changelog" entry #'+org-capture-central-project-changelog-file "* %U %?\n %i\n %a" :prepend t :heading "Changelog")))
-    ;;(add-to-list 'org-export-backends 'hugo)
-    ;;(add-to-list 'org-latex-packages-alist '("" "buss" t))
-    (setq org-agenda-custom-commands
+  (setq org-capture-templates '(
+                                ("t" "Personal todo" entry (file+headline +org-capture-todo-file "Inbox")
+                                 "* [ ] %U %?\n%i\n%a" :prepend t)
+                                ("n" "Personal notes" entry
+                                 (file+headline +org-capture-notes-file "Inbox")
+                                 "* %u %?\n%i\n%a" :prepend t)
+                                ("j" "Journal" entry
+                                 (file+olp+datetree +org-capture-journal-file)
+                                 "* %U %?\n%i\n%a")
+                                ("p" "Templates for projects")
+                                ("pt" "Project-local todo" entry
+                                 (file+headline +org-capture-project-todo-file "Inbox")
+                                 "* TODO %?\n%i\n%a" :prepend t)
+                                ("pn" "Project-local notes" entry
+                                 (file+headline +org-capture-project-notes-file "Inbox")
+                                 "* %U %?\n%i\n%a" :prepend t)
+                                ("pc" "Project-local changelog" entry
+                                 (file+headline +org-capture-project-changelog-file "Unreleased")
+                                 "* %U %?\n%i\n%a" :prepend t)
+                                ("o" "Centralized templates for projects")
+                                ("ot" "Project todo" entry #'+org-capture-central-project-todo-file "* TODO %?\n %i\n %a" :heading "Tasks" :prepend nil)
+                                ("on" "Project notes" entry #'+org-capture-central-project-notes-file "* %U %?\n %i\n %a" :prepend t :heading "Notes")
+                                ("oc" "Project changelog" entry #'+org-capture-central-project-changelog-file "* %U %?\n %i\n %a" :prepend t :heading "Changelog")))
+
+
+
+  (add-hook 'org-insert-heading-hook 'org/add-timestamp-to-heading-property)
+  ;;(add-to-list 'org-export-backends 'hugo)
+  ;;(add-to-list 'org-latex-packages-alist '("" "buss" t))
+  (setq org-agenda-custom-commands
         '(("d" "Deadlines"
-              ((agenda ""
-                   ((org-agenda-span 'day)
-                       (org-agenda-time-grid nil)
-                       (org-deadline-warning-days 365)
-                       (org-agenda-entry-types '(:deadline)))))))))
+           ((agenda ""
+                    ((org-agenda-span 'day)
+                     (org-agenda-time-grid nil)
+                     (org-deadline-warning-days 365)
+                     (org-agenda-entry-types '(:deadline)))))))))
 
 
 (after! org-ref
-    (setq shared-root "~/Projects")
-    (defun get-path-in-shared-root (fname) (f-join shared-root fname))
-    (defun get-path-in-org-root (fname) (f-join shared-root "org" fname))
-    (setq bibtex-completion-bibliography (mapcar #'get-path-in-org-root ["refs.bib" "mgr_refs.bib"])))
+  (setq shared-root "~/Projects")
+  (defun get-path-in-shared-root (fname) (f-join shared-root fname))
+  (defun get-path-in-org-root (fname) (f-join shared-root "org" fname))
+  (setq bibtex-completion-bibliography (mapcar #'get-path-in-org-root ["refs.bib" "mgr_refs.bib"])))
 
 ;;;;;;;;
 ;; roam
 ;;;;;;;;
 (use-package org-roam
-    :ensure t
-    :custom
-    (org-roam-directory (file-truename "/path/to/org-files/"))
-    (org-roam-directory (file-truename "~/Projects/org/roam/"))
-    (org-roam-index-file (file-truename"~/Projects/org/roam/index.org"))
-    :bind (
-              ("C-c n l" . org-roam-buffer-toggle)
-              ("C-c n f" . org-roam-node-find)
-              ("C-c n g" . org-roam-graph)
-              ("C-c n i" . org-roam-node-insert)
-              ("C-c n c" . org-roam-capture)
-              ("C-c n j" . org-roam-dailies-capture-today))
-    :config
-    ;; If you're using a vertical completion framework, you might want a more informative completion interface
-    (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
-    (org-roam-db-autosync-mode)
-    ;; If using org-roam-protocol
-    (require 'org-roam-protocol)
-    (add-to-list 'display-buffer-alist
-        '("\\*org-roam\\*"
-             (display-buffer-in-side-window)
-             (side . bottom)
-             (slot . 0)
-             (window-height . 0.25))))
+  :ensure t
+  :custom
+  (org-roam-directory (file-truename "/path/to/org-files/"))
+  (org-roam-directory (file-truename "~/Projects/org/roam/"))
+  (org-roam-index-file (file-truename"~/Projects/org/roam/index.org"))
+  :bind (
+         ("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n g" . org-roam-graph)
+         ("C-c n i" . org-roam-node-insert)
+         ("C-c n c" . org-roam-capture)
+         ("C-c n j" . org-roam-dailies-capture-today))
+  :config
+  ;; If you're using a vertical completion framework, you might want a more informative completion interface
+  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+  (org-roam-db-autosync-mode)
+  ;; If using org-roam-protocol
+  (require 'org-roam-protocol)
+  (add-to-list 'display-buffer-alist
+               '("\\*org-roam\\*"
+                 (display-buffer-in-side-window)
+                 (side . bottom)
+                 (slot . 0)
+                 (window-height . 0.25))))
 
 
 
 
 
 (defun org-mode-sync ()
-    (interactive)
-    (async-shell-command (concat "bash " org-directory "/scripts/run_autocommit_loop.sh"))
-    (rename-async-buffer-with-truncated-lines "org-sync"))
+  (interactive)
+  (async-shell-command (concat "bash " org-directory "/scripts/run_autocommit_loop.sh"))
+  (rename-async-buffer-with-truncated-lines "org-sync"))
 
 
 ;;;;;;;;;;;;;;;
@@ -448,24 +468,24 @@
 
 
 (defun org-present-start ()
-    ;; Center the presentation and wrap lines
-    (setq visual-fill-column-width 150
+  ;; Center the presentation and wrap lines
+  (setq visual-fill-column-width 150
         visual-fill-column-center-text t)
-    (visual-fill-column-mode 1)
-    (visual-line-mode 1)
-    (menu-bar-mode 0)
-    (tool-bar-mode 0)
-    (scroll-bar-mode 0))
+  (visual-fill-column-mode 1)
+  (visual-line-mode 1)
+  (menu-bar-mode 0)
+  (tool-bar-mode 0)
+  (scroll-bar-mode 0))
 
 
 
 (defun org-present-end ()
-    ;; Stop centering the document
-    (visual-fill-column-mode 0)
-    (visual-line-mode 0)
-    (menu-bar-mode 1)
-    (tool-bar-mode 1)
-    (scroll-bar-mode 1))
+  ;; Stop centering the document
+  (visual-fill-column-mode 0)
+  (visual-line-mode 0)
+  (menu-bar-mode 1)
+  (tool-bar-mode 1)
+  (scroll-bar-mode 1))
 
 
 (add-hook 'org-present-mode-hook 'display-line-numbers-mode)
@@ -477,56 +497,56 @@
 ;; org-babel
 ;;;;;;;;
 (load! "util/blocks.el")
-(load! "util/ai.el")
+
+(load! "egents/egents.el")
+(map!
+ :map 'override
+ :prefix "C-c i"
+ :desc "insert sage code block"
+ "s" (mklambdai (insert-babel-code-block "sage" (buffer-name)))
+ :desc "insert ipython code block"
+ "i" (mklambdai (insert-babel-code-block "ipython" (buffer-name)))
+ :desc "insert Julia code block"
+ "j" (mklambdai (insert-babel-code-block "julia" (buffer-name)))
+ :desc "insert python code block"
+ "p" (mklambdai (insert-babel-code-block "python" (buffer-name) ""))
+ :desc "insert async python code block"
+ "P" (mklambdai (insert-babel-code-block "python" (buffer-name) "" t))
+ :desc "insert Rust code block"
+ "r" (mklambdai (insert-babel-code-block "rust" (buffer-name) "" t))
+ :desc "insert elisp code block"
+ "e" (mklambdai (insert-babel-code-block "elisp" (buffer-name)))
+ :desc "insert elixir code block"
+ "x" (mklambdai (insert-babel-code-block "elixir" (buffer-name)))
+ :desc "latex"
+ "l" (mklambdai (insert-babel-code-block "latex" (buffer-name)))
+ :desc "bash"
+ "b" (mklambdai (insert-babel-code-block "bash" ""))
+ :desc "quote"
+ "q" (mklambdai (insert-org-mode-block-with-content "" "" "QUOTE"))
+ :desc "chatgpt"
+ "a" #'egents/insert-response-code-block
+ :desc "cypher"
+ "c" (mklambdai (insert-babel-code-block "cypher" (buffer-name)))
+ :desc "org-ai"
+ "A"  (mklambdai (insert-org-mode-block-with-content " :service anthropic" "\n" "AI")))
+
 
 (map!
-    :map 'override
-    :prefix "C-c i"
-    :desc "insert sage code block"
-    "s" (mklambdai (insert-babel-code-block "sage" (buffer-name)))
-    :desc "insert ipython code block"
-    "i" (mklambdai (insert-babel-code-block "ipython" (buffer-name)))
-    :desc "insert Julia code block"
-    "j" (mklambdai (insert-babel-code-block "julia" (buffer-name)))
-    :desc "insert python code block"
-    "p" (mklambdai (insert-babel-code-block "python" (buffer-name) ""))
-    :desc "insert async python code block"
-    "P" (mklambdai (insert-babel-code-block "python" (buffer-name) "" t))
-    :desc "insert Rust code block"
-    "r" (mklambdai (insert-babel-code-block "rust" (buffer-name) "" t))
-    :desc "insert elisp code block"
-    "e" (mklambdai (insert-babel-code-block "elisp" (buffer-name)))
-    :desc "insert elixir code block"
-    "x" (mklambdai (insert-babel-code-block "elixir" (buffer-name)))
-    :desc "latex"
-    "l" (mklambdai (insert-babel-code-block "latex" (buffer-name)))
-    :desc "bash"
-    "b" (mklambdai (insert-babel-code-block "bash" (buffer-name)))
-    :desc "quote"
-    "q" (mklambdai (insert-org-mode-block-with-content "" "" "QUOTE"))
-    :desc "chatgpt"
-    "C" #'chatgpt/insert-response-code-block
-    :desc "cypher"
-    "c" (mklambdai (insert-babel-code-block "cypher" (buffer-name)))
-    :desc "org-ai"
-    "a" 'insert-org-ai-block)
-
-
-(map!
-    :map 'override
-    :prefix "C-c"
-    "j" #'org-babel-next-src-block
-    "k" #'org-babel-previous-src-block
-    "n" (mklambdai (progn (org-ctrl-c-ctrl-c) (org-babel-next-src-block)))
-    "r" #'org-babel-execute-buffer
-    "t" #'org-babel-execute-subtree
-    "l s" #'org/store-link-to-current-line
-    "l i" #'org/insert-stored-link)
+ :map 'override
+ :prefix "C-c"
+ "j" #'org-babel-next-src-block
+ "k" #'org-babel-previous-src-block
+ "n" (mklambdai (progn (org-ctrl-c-ctrl-c) (org-babel-next-src-block)))
+ "r" #'org-babel-execute-buffer
+ "t" #'org-babel-execute-subtree
+ "l s" #'org/store-link-to-current-line
+ "l i" #'org/insert-stored-link)
 
 (after! org-babel
-    (org-babel-do-load-languages
-        'org-babel-load-languages
-        '((ipython . t) (python . t) (hy . t) (latex . t) (mermaid . t))))
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((ipython . t) (python . t) (hy . t) (latex . t) (mermaid . t))))
 
 ;;;;;;;;;;
 ;; chatgpt
@@ -536,15 +556,15 @@
 ;; currently communication only uses text, maybe there is a better way to run it
 
 (defun ask-chatgpt ()
-    "ask chatgpt using https://github.com/mmabrouk/chatgpt-wrapper"
-    (interactive)
-    (let ((buffer-name "ChatGPT"))
-        (if (not (get-buffer buffer-name))
-            ;; run chatgpt in new buffer if it does not exist
-            (progn
-                (async-shell-command "killall firefox; chatgpt install")
-                (rename-async-buffer-with-truncated-lines "*ChatGPT*"))
-            (switch-to-buffer-other-window buffer-name))))
+  "ask chatgpt using https://github.com/mmabrouk/chatgpt-wrapper"
+  (interactive)
+  (let ((buffer-name "ChatGPT"))
+    (if (not (get-buffer buffer-name))
+        ;; run chatgpt in new buffer if it does not exist
+        (progn
+          (async-shell-command "killall firefox; chatgpt install")
+          (rename-async-buffer-with-truncated-lines "*ChatGPT*"))
+      (switch-to-buffer-other-window buffer-name))))
 
 
 
@@ -552,7 +572,7 @@
 ;; flycheck
 ;;;;;;;;;;;
 (after! flycheck-mode
-    (setq flycheck-disabled-checkers (cl-pushnew python-pylint flycheck-disabled-checkers)))
+  (setq flycheck-disabled-checkers (cl-pushnew python-pylint flycheck-disabled-checkers)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ein (emacs ipython notebook)
@@ -560,35 +580,35 @@
 (map! "C-c C-d" #'ein:worksheet-kill-cell)
 
 (defun elpy-ein-enable (&optional _ignored)
-    "Enable Elpy in all future Python buffers."
-    (interactive)
-    (unless elpy-enabled-p
-        (when _ignored
-            (warn "The argument to `elpy-enable' is deprecated, customize `elpy-modules' instead"))
-        (elpy-modules-global-init)
-        (define-key inferior-python-mode-map (kbd "C-c C-z") 'elpy-shell-switch-to-buffer)
-        (add-hook 'ein:notebook-mode-hook 'elpy-mode)
-        (add-hook 'pyvenv-post-activate-hooks 'elpy-rpc--disconnect)
-        (add-hook 'pyvenv-post-deactivate-hooks 'elpy-rpc--disconnect)
-        (add-hook 'inferior-python-mode-hook 'elpy-shell--enable-output-filter)
-        (add-hook 'python-shell-first-prompt-hook 'elpy-shell--send-setup-code t)
-        ;; Add codecell boundaries highligting
-        (font-lock-add-keywords
-            'ein:notebook-mode
-            `((,(replace-regexp-in-string "\\\\" "\\\\"
-                    elpy-shell-cell-boundary-regexp
-                    0 'elpy-codecell-boundary prepend))))
-        ;; Enable Elpy-mode in the opened python buffer
-        (setq elpy-enabled-p t)
-        (dolist (buffer (buffer-list))
-            (and (not (string-match "^ ?\\*" (buffer-name buffer)))
-                (with-current-buffer buffer
-                    (when (string= major-mode 'ein:notebook-mode)
-                        (ein:notebook-mode)  ;; update codecell fontification
-                        (elpy-mode t)))))))
+  "Enable Elpy in all future Python buffers."
+  (interactive)
+  (unless elpy-enabled-p
+    (when _ignored
+      (warn "The argument to `elpy-enable' is deprecated, customize `elpy-modules' instead"))
+    (elpy-modules-global-init)
+    (define-key inferior-python-mode-map (kbd "C-c C-z") 'elpy-shell-switch-to-buffer)
+    (add-hook 'ein:notebook-mode-hook 'elpy-mode)
+    (add-hook 'pyvenv-post-activate-hooks 'elpy-rpc--disconnect)
+    (add-hook 'pyvenv-post-deactivate-hooks 'elpy-rpc--disconnect)
+    (add-hook 'inferior-python-mode-hook 'elpy-shell--enable-output-filter)
+    (add-hook 'python-shell-first-prompt-hook 'elpy-shell--send-setup-code t)
+    ;; Add codecell boundaries highligting
+    (font-lock-add-keywords
+     'ein:notebook-mode
+     `((,(replace-regexp-in-string "\\\\" "\\\\"
+                                   elpy-shell-cell-boundary-regexp
+                                   0 'elpy-codecell-boundary prepend))))
+    ;; Enable Elpy-mode in the opened python buffer
+    (setq elpy-enabled-p t)
+    (dolist (buffer (buffer-list))
+      (and (not (string-match "^ ?\\*" (buffer-name buffer)))
+           (with-current-buffer buffer
+             (when (string= major-mode 'ein:notebook-mode)
+               (ein:notebook-mode)  ;; update codecell fontification
+               (elpy-mode t)))))))
 
 (add-hook 'ein:notebook-mode-hook
-    (lambda () (local-set-key (kbd "C-c b") #'ein:worksheet-insert-cell-below)))
+          (lambda () (local-set-key (kbd "C-c b") #'ein:worksheet-insert-cell-below)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -596,11 +616,11 @@
 ;; hy is supported in doom :lang section
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun hy-shell-eval-before-cursor ()
-    (interactive)
-    (shell-eval-before-cursor #'hy-shell--send))
+  (interactive)
+  (shell-eval-before-cursor #'hy-shell--send))
 
 (after! hy-mode
-    (map! :map hy-mode-map
+  (map! :map hy-mode-map
         "C-c C-r" #'hy-shell-eval-before-cursor
         "C-c C-v" #'hy-shell-eval-region))
 
@@ -645,28 +665,28 @@
 ;;
 
 (defun add-codeium-completion ()
-    (interactive)
-    (setq completion-at-point-functions
+  (interactive)
+  (setq completion-at-point-functions
         (cons 'codeium-completion-at-point
-            completion-at-point-functions))
-    (setq-local company-frontends
-        '(company-pseudo-tooltip-frontend
-             company-preview-frontend))
-    (setq company-minimum-prefix-length 0))
+              completion-at-point-functions))
+  (setq-local company-frontends
+              '(company-pseudo-tooltip-frontend
+                company-preview-frontend))
+  (setq company-minimum-prefix-length 0))
 
 (defun remove-codeium-completion ()
-    (interactive)
-    (setq completion-at-point-functions
+  (interactive)
+  (setq completion-at-point-functions
         (delete 'codeium-completion-at-point
-            completion-at-point-functions))
-    (setq company-frontends
+                completion-at-point-functions))
+  (setq company-frontends
         '(company-box-frontend company-preview-frontend))
-    (setq company-minimum-prefix-length 2))
+  (setq company-minimum-prefix-length 2))
 
 (use-package! copilot
-    :hook (prog-mode . copilot-mode)
-    :custom (copilot-node-executable (string-trim (shell-command-to-string "which node")))
-    :bind (:map copilot-completion-map
+  :hook (prog-mode . copilot-mode)
+  :custom (copilot-node-executable (string-trim (shell-command-to-string "which node")))
+  :bind (:map copilot-completion-map
               ("<tab>" . 'copilot-accept-completion)
               ("TAB" . 'copilot-accept-completion)
               ("C-TAB" . 'copilot-accept-completion-by-word)
@@ -677,132 +697,134 @@
 ;;
 ;;
 (use-package! org-fancy-priorities
-    :config
-    (setq org-fancy-priorities-list '("MUST" "SHOULD" "COULD" "WONT")))
+  :config
+  (setq org-fancy-priorities-list '("MUST" "SHOULD" "COULD" "WONT")))
 
 
-(use-package! conda)
-
-(use-package! lsp-julia
-    :config
-    (setq lsp-julia-flags '("--project=~/.julia/environments/v1.9" "--startup-file=no" "--history-file=no"))
-    (setq lsp-julia-default-environment "~/.julia/environments/v1.9")
-    (setq lsp-julia-default-environment "~/.julia/environments/v1.9"))
+;; (use-package! lsp-julia
+;;     :config
+;;     (setq lsp-julia-flags '("--project=~/.julia/environments/v1.9" "--startup-file=no" "--history-file=no"))
+;;     (setq lsp-julia-default-environment "~/.julia/environments/v1.9")
+;;     (setq lsp-julia-default-environment "~/.julia/environments/v1.9"))
 
 (after! julia-mode
-    (add-hook! 'julia-mode-hook
-        (setq-local lsp-enable-folding t
-            lsp-folding-range-limit 100)))
+  (add-hook! 'julia-mode-hook
+    (setq-local lsp-enable-folding t
+                lsp-folding-range-limit 100)))
 
 (use-package! lsp-mode
-    :config
-    (lsp-register-custom-settings
-        '(("rust-analyzer.cargo.extraEnv"
-              (("LIBTORCH" . "/root/miniconda/lib/python3.10/site-packages/torch")
-                  ("LD_LIBRARY_PATH" . "/root/miniconda/lib/python3.10/site-packages/torch/lib")
-                  ("LIBTORCH_CXX11_ABI" . "0")))))
-    (lsp-register-client
-        (make-lsp-client
-            :new-connection
-            (lsp-stdio-connection (list "swipl"
-                                      "-g" "use_module(library(lsp_server))."
-                                      "-g" "lsp_server:main"
-                                      "-t" "halt"
-                                      "--" "stdio"))
-            :major-modes '(prolog-mode)
-            :priority 1
-            :multi-root t
-            :server-id 'prolog-ls))
-    :hook (elixir-mode . lsp)
-    :init (add-to-list 'exec-path "/home/kuba/.lsp/elixir"))
+  :config
+  (lsp-register-custom-settings
+   '(("rust-analyzer.cargo.extraEnv"
+      (("LIBTORCH" . "/root/miniconda/lib/python3.10/site-packages/torch")
+       ("LD_LIBRARY_PATH" . "/root/miniconda/lib/python3.10/site-packages/torch/lib")
+       ("LIBTORCH_CXX11_ABI" . "0")))))
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection
+    (lsp-stdio-connection (list "swipl"
+                                "-g" "use_module(library(lsp_server))."
+                                "-g" "lsp_server:main"
+                                "-t" "halt"
+                                "--" "stdio"))
+    :major-modes '(prolog-mode)
+    :priority 1
+    :multi-root t
+    :server-id 'prolog-ls))
+  :hook (elixir-mode . lsp)
+  :init (add-to-list 'exec-path "/home/kuba/.lsp/elixir"))
 
 
 ;;(load! "util/mojo.el")
 (use-package eglot
-    :ensure t
-    :defer t
-    :hook (
-              (mojo-mode . eglot-ensure))
-    :config
-    (add-to-list 'eglot-server-programs '(mojo-mode . ("/home/kuba/.modular/pkg/packages.modular.com_max/bin/mojo-lsp-server")))
-    (add-to-list 'eglot-server-programs '(python-mode . ("ruff" "server"))))
+  :ensure t
+  :defer t
+  :hook (
+         (mojo-mode . eglot-ensure))
+  :config
+  (add-to-list 'eglot-server-programs '(mojo-mode . ("/home/kuba/.modular/pkg/packages.modular.com_max/bin/mojo-lsp-server")))
+  (add-to-list 'eglot-server-programs '(python-mode . ("ruff" "server"))))
 
 (after! eglot
-    (add-hook 'elixir-mode-hook 'eglot-ensure)
-    (add-to-list 'eglot-server-programs '(elixir-mode  "/home/kuba/.lsp/elixir")))
+  (add-hook 'elixir-mode-hook 'eglot-ensure)
+  (add-to-list 'eglot-server-programs '(elixir-mode  "/home/kuba/.lsp/elixir")))
 
 (map!
-    :map lsp-mode-map
-    :prefix "C-c"
-    "c" (mklambdai (lsp-rust-analyzer--common-runner lsp)))
+ :map lsp-mode-map
+ :prefix "C-c"
+ "c" (mklambdai (lsp-rust-analyzer--common-runner lsp)))
 
 (load! "util/exercism.el")
 (require 'dap-python)
 (after! dap-mode
-    (setq dap-python-debugger 'debugpy))
+  (setq dap-python-debugger 'debugpy))
 
 (after! elfeed
-    (setq elfeed-search-filter "@2-week-ago")
-    (setq elfeed-feeds
+  (setq elfeed-search-filter "@2-week-ago")
+  (setq elfeed-feeds
         '(("https://huggingface.co/blog/feed.xml" ml)
-             ("https://news.mit.edu/topic/mitartificial-intelligence2-rss.xml" ml)
-             ("https://nitter.ktachibana.party/GregKamradt/rss" ml llms)
-             ("https://fetchrss.com/rss/65b2319bfa815b18a45b679265b231bafa815b18a45b6793.xml" nlp))))
+          ("https://news.mit.edu/topic/mitartificial-intelligence2-rss.xml" ml)
+          ("https://nitter.ktachibana.party/GregKamradt/rss" ml llms)
+          ("https://fetchrss.com/rss/65b2319bfa815b18a45b679265b231bafa815b18a45b6793.xml" nlp))))
 
 (defcustom lsp-ruff-executable "ruff-lsp"
-    "Command to start the Ruff language server."
-    :group 'lsp-python
-    :risky t
-    :type 'file)
+  "Command to start the Ruff language server."
+  :group 'lsp-python
+  :risky t
+  :type 'file)
 
 ;; Register ruff-lsp with the LSP client.
 (lsp-register-client
-    (make-lsp-client
-        :new-connection (lsp-stdio-connection (lambda () (list lsp-ruff-executable)))
-        :activation-fn (lsp-activate-on "python")
-        :add-on? t
-        :server-id 'ruff
-        :initialization-options (lambda ()
-                                    (list :settings
-                                        (cl-list*
-                                            (when
-                                                poetry-project-venv
-                                                (list
-                                                    :interpreter (vector (f-join (f-long poetry-project-venv) "bin" "python3"))
-                                                    :workspace (f-long poetry-project-venv)
-                                                    :path (vector (f-join (f-long poetry-project-venv) "bin" "ruff")))))))))
+ (make-lsp-client
+  :new-connection (lsp-stdio-connection (lambda () (list lsp-ruff-executable)))
+  :activation-fn (lsp-activate-on "python")
+  :add-on? t
+  :server-id 'ruff
+  :initialization-options (lambda ()
+                            (list :settings
+                                  (cl-list*
+                                   (when
+                                       poetry-project-venv
+                                     (list
+                                      :interpreter (vector (f-join (f-long poetry-project-venv) "bin" "python3"))
+                                      :workspace (f-long poetry-project-venv)
+                                      :path (vector (f-join (f-long poetry-project-venv) "bin" "ruff")))))))))
 (require 'flycheck)
 (flycheck-define-checker python-ruff
-    "A Python syntax and style checker using the ruff utility.
+  "A Python syntax and style checker using the ruff utility.
 To override the path to the ruff executable, set
 `flycheck-python-ruff-executable'.
 See URL `http://pypi.python.org/pypi/ruff'."
-    :command ("ruff"
-                 "--format=text"
-                 (eval (when buffer-file-name
-                           (concat "--stdin-filename=" buffer-file-name)))
-                 "-")
-    :standard-input t
-    :error-filter (lambda (errors)
-                      (let ((errors (flycheck-sanitize-errors errors)))
-                          (seq-map #'flycheck-flake8-fix-error-level errors)))
-    :error-patterns
-    ((warning line-start
-         (file-name) ":" line ":" (optional column ":") " "
-         (id (one-or-more (any alpha)) (one-or-more digit)) " "
-         (message (one-or-more not-newline))
-         line-end))
-    :modes python-mode)
+  :command ("ruff"
+            "--format=text"
+            (eval (when buffer-file-name
+                    (concat "--stdin-filename=" buffer-file-name)))
+            "-")
+  :standard-input t
+  :error-filter (lambda (errors)
+                  (let ((errors (flycheck-sanitize-errors errors)))
+                    (seq-map #'flycheck-flake8-fix-error-level errors)))
+  :error-patterns
+  ((warning line-start
+            (file-name) ":" line ":" (optional column ":") " "
+            (id (one-or-more (any alpha)) (one-or-more digit)) " "
+            (message (one-or-more not-newline))
+            line-end))
+  :modes python-mode)
 
 (add-to-list 'flycheck-checkers 'python-ruff)
 
 ;;(require 'poetry)
+(after! poetry
+  (remove-hook 'python-mode-hook #'poetry-tracking-mode)
+  (add-hook 'python-mode-hook 'poetry-track-virtualenv))
+
 
 (after! ob-mermaid
-    (setq ob-mermaid-cli-path paths/mmdc-path (shell-command-to-string)))
+  (setq ob-mermaid-cli-path paths/mmdc-path (shell-command-to-string)))
 
 (after! lean4-mode
-    (setq lean4-rootdir "/home/kuba/.elan/"))
+  (setq lean4-rootdir "/home/kuba/.elan/"))
 
 ;; prolog
 ;;(load! "modules/ediprolog/ediprolog.el")
@@ -811,10 +833,10 @@ See URL `http://pypi.python.org/pypi/ruff'."
 ;; latex
 
 ;; sage
-(use-package! ob-sagemath
-    :config
-    (setq sage-shell:sage-executable "/home/kuba/micromamba/envs/sage/bin/sage")
-    (setq org-babel-default-header-args:sage '((:session . t) (:results . "output")))
-    (setq org-confirm-babel-evaluate nil)
-    (setq org-export-babel-evaluate nil)
-    (setq org-startup-with-inline-images t))
+;;(use-package! ob-sagemath
+;;    :config
+;;    (setq sage-shell:sage-executable "/home/kuba/micromamba/envs/sage/bin/sage")
+;;    (setq org-babel-default-header-args:sage '((:session . t) (:results . "output")))
+;;    (setq org-confirm-babel-evaluate nil)
+;;    (setq org-export-babel-evaluate nil)
+;;    (setq org-startup-with-inline-images t))

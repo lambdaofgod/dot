@@ -49,9 +49,7 @@
                                         ;(unpin! t)
 
 (package! visual-fill-column)
-                                        ;(package! org-present :recipe (:host github :repo  "rlister/org-present"))
-(package! ob-ipython)
-(package! elpy)
+
 (package! hyperbole)
 (package! python-black)
 (package! org-ref)
@@ -59,14 +57,16 @@
 
 
 (package! copilot
-          :recipe (:host github :repo "zerolfx/copilot.el" :files ("*.el" "dist")))
+    :recipe (:host github :repo "zerolfx/copilot.el" :files ("*.el" "dist")))
 (package! shell-maker)
-(package! claude-shell :recipe (:host github :repo "arminfriedl/claude-shell"))
-                                        ;(package! mojo-mode :recipe (:host github :repo "andcarnivorous/mojo-hl" :files ("*.el")))
 
 (package! dired-sidebar)
 
 ;; nice to-haves
+                                        ;(package! org-present :recipe (:host github :repo  "rlister/org-present"))
+;;;(package! mojo-mode :recipe (:host github :repo "andcarnivorous/mojo-hl" :files ("*.el")))
+;;(package! ob-ipython)
+;;(package! elpy)
 ;; (package! lean4-mode :recipe (:host github :repo "leanprover/lean4-mode" :files ("*.el" "data")))
 ;;(package! ob-sagemath :recipe (:host github :repo "sagemath/ob-sagemath"))
 ;;(package! sage-shell-mode)
@@ -83,3 +83,6 @@
 ;; (package! org-ql)
 ;; (package! ob-mermaid)
 (package! emacsql :pin "491105a")
+
+(package! org-roam-ui)
+(package! gptel)

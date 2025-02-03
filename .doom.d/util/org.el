@@ -1,5 +1,12 @@
 ;; tangle stuff
 
+(defun org/add-timestamp-to-heading-property ()
+    "Add an active timestamp as a property to new headings."
+    (save-excursion
+        (org-back-to-heading)
+        (org-set-property "CREATED" (format-time-string "[%Y-%m-%d %a %H:%M]" (current-time)))))
+
+
 (defun org/associated-tangle-filename ()
     (cdr (assoc :tangle (org-babel-parse-header-arguments (buffer-string)))))
 
@@ -55,36 +62,36 @@
 
 
 (defun org/goto-tangle-file ()
-  "open the file specified in the `tangle' header property in a new buffer."
-  (interactive)
-  (let* ((header-args-str (org-entry-get (point) "header-args" :inherit))
-         (tangled-file (nth 1 (s-split " " header-args-str))))
-    (if tangled-file
-        (find-file tangled-file))
-    (print tangled-file)))
+    "open the file specified in the `tangle' header property in a new buffer."
+    (interactive)
+    (let* ((header-args-str (org-entry-get (point) "header-args" :inherit))
+              (tangled-file (nth 1 (s-split " " header-args-str))))
+        (if tangled-file
+            (find-file tangled-file))
+        (print tangled-file)))
 
 
 ;; storing links
 
 (defun org/store-link-to-current-line ()
-  (interactive)
-  (let* ((show-full-path nil)
-         (current-file (buffer-file-name))
-         (current-line (line-number-at-pos))
-         (shown-path (if show-full-path current-file (file-name-nondirectory current-file)))
-         (org-link (format "[[%s::%s][%s::%s (in %s)]]"
-                          current-file
-                          current-line
-                       shown-path
-                       current-line
-                       current-file)))
+    (interactive)
+    (let* ((show-full-path nil)
+              (current-file (buffer-file-name))
+              (current-line (line-number-at-pos))
+              (shown-path (if show-full-path current-file (file-name-nondirectory current-file)))
+              (org-link (format "[[%s::%s][%s::%s (in %s)]]"
+                            current-file
+                            current-line
+                            shown-path
+                            current-line
+                            current-file)))
 
-    (setq tmp/org-link org-link)
-    (message "Org link stored: %s" org-link)))
+        (setq tmp/org-link org-link)
+        (message "Org link stored: %s" org-link)))
 
 (defun org/insert-stored-link ()
-  (interactive)
-  (insert tmp/org-link))
+    (interactive)
+    (insert tmp/org-link))
 
 
 ;; setting categories
@@ -97,14 +104,14 @@
          "experiment"
          "project"
          "idea")
- "List of categories for org items.")
+    "List of categories for org items.")
 
 (defun org-set-category ()
-  "Function to set an org-item's category from a list."
-  (interactive)
-  (let ((property "CATEGORY"))
-    (if (org-at-heading-p)
-        (let* ((completion-ignore-case t)
-               (value (completing-read "Select Category: "
-                                       org-item-categories nil t)))
-          (org-entry-put (point) property value)))))
+    "Function to set an org-item's category from a list."
+    (interactive)
+    (let ((property "CATEGORY"))
+        (if (org-at-heading-p)
+            (let* ((completion-ignore-case t)
+                      (value (completing-read "Select Category: "
+                                 org-item-categories nil t)))
+                (org-entry-put (point) property value)))))
