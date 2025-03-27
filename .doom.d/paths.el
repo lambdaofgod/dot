@@ -1,3 +1,5 @@
 ;;; paths.el -*- lexical-binding: t; -*-
 
-(setq paths/mmdc-path "/home/kuba/.volta/bin/mmdc")
+(if (eq system-type 'darwin)
+    (setq paths/mmdc-path "/opt/homebrew/bin/mmdc")
+    (setq paths/mmdc-path "/home/kuba/.volta/bin/mmdc"))

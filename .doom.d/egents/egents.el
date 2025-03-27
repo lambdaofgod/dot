@@ -1,6 +1,6 @@
 (defvar egents/args (concat "python :session egents :async" default-code-block-args))
 (defvar egents/python-code-dir (file-name-directory load-file-name))
-(defvar egents/python-path (file-name-directory "~/.pyenv/shims/python"))
+(defvar egents/python-path (file-truename "~/.pyenv/shims/python"))
 
 (defun read-file-as-string (filename)
     (with-temp-buffer
@@ -22,4 +22,4 @@
 (defun egents/insert-response-code-block (chatgpt-query)
     (interactive "sAsk agent: ")
     (insert-org-mode-block-with-content egents/args
-        (format "prompt = '%s'\nget_agent_output(prompt)" chatgpt-query)))
+        (format "prompt = \"\"\"\n%s\n\"\"\".strip()\nagent_response = get_agent_output(prompt)\nagent_response" chatgpt-query)))

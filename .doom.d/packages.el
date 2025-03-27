@@ -81,8 +81,9 @@
 ;; stuff that might break emacsql
 (package! org-fancy-priorities)
 ;; (package! org-ql)
-;; (package! ob-mermaid)
+(package! ob-mermaid)
 (package! emacsql :pin "491105a")
 
 (package! org-roam-ui)
 (package! gptel)
+(package! aidermacs :recipe (:host github :repo "MatthewZMD/aidermacs"))

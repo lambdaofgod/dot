@@ -23,6 +23,12 @@
             (message (concat "loaded org-openai-api-token"))
             (org-ai-switch-chat-model))))
 
+(defun org-ai/set-anthropic-key-envvar ()
+    (interactive)
+    (let ((anthropic-api-key (get-key-from-file anthropic-api-key-path)))
+        (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
+        ))
+
 
 (defun org-ai/set-anthropic-key ()
     (interactive)

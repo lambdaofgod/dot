@@ -24,8 +24,8 @@
     company           ; the ultimate code completion backend
     ;; (helm +helm-ag)              ; the *other* search engine for love and life
     ;; ido               ; the other *other* search engine...
-    (ivy +wgrep)               ; a search engine for love and life
-    ;; (vertico +embark)           ; the search engine of the future
+    ;;(ivy +wgrep)               ; a search engine for love and life
+    (vertico +embark)           ; the search engine of the future
 
     :ui
     ;;deft              ; notational velocity for Emacs

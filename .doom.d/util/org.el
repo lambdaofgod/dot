@@ -4,7 +4,7 @@
     "Add an active timestamp as a property to new headings."
     (save-excursion
         (org-back-to-heading)
-        (org-set-property "CREATED" (format-time-string "[%Y-%m-%d %a %H:%M]" (current-time)))))
+        (org-set-property "CREATED" (format-time-string "<%Y-%m-%d %a> [%H:%M]" (current-time)))))
 
 
 (defun org/associated-tangle-filename ()

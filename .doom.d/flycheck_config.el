@@ -3,24 +3,19 @@
 ;; Place your private configuration here! Remember, you do not need to run 'doom
 ;; sync' after modifying this file!
 
+(setq browse-url-generic-program "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser")
 
-(load! "util/ob-mermaid.el")
-(setq paths/mmdc-path (if (eq system-type 'darwin) "/opt/homebrew/bin/mmdc"
-                          "/home/kuba/.volta/bin/mmdc"))
+
+(load! "paths.el")
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets. It is optional.
 (setq user-full-name ""
     user-mail-address "")
-
-;; mac customization
-(if (eq system-type 'darwin)
-    (progn
-        (setq browse-url-generic-program "/Applications/Zen.app/Contents/MacOS/zen")
-        (custom-set-variables
-            '(ns-alternate-modifier 'meta)
-            '(ns-command-modifier 'control)
-            '(ns-right-alternate-modifier 'meta)
-            '(ns-right-command-modifier 'super))))
+(custom-set-variables
+    '(ns-alternate-modifier 'meta)
+    '(ns-command-modifier 'control)
+    '(ns-right-alternate-modifier 'meta)
+    '(ns-right-command-modifier 'super))
 
 ;; Doom exposes five (optional) variables for controlling fonts in Doom:
 ;;
@@ -240,6 +235,8 @@
     "b" (mklambdai (switch-to-buffer (find-file-noselect "~/.bashrc")))
     :desc "goto project docker compose"
     "d" #'doom-open-project-docker-compose
+    :desc "goto chatgpt conversations"
+    "c" (mklambdai  (switch-to-buffer (find-file-noselect "~/Projects/org/chatgpt_conversations.org")))
     :desc "goto tangle file"
     "t" #'org/goto-tangle-file)
 
@@ -301,7 +298,7 @@
 ;; search-replace
 ;;
 (map!
-    :leader "s r" #'consult-ripgrep)
+    :leader "s r" #'counsel-projectile-rg)
 
 
 (defun swiper-replace ()
@@ -407,7 +404,6 @@
     (add-hook 'org-insert-heading-hook 'org/add-timestamp-to-heading-property)
     ;;(add-to-list 'org-export-backends 'hugo)
     ;;(add-to-list 'org-latex-packages-alist '("" "buss" t))
-    (setq org-agenda-files (list "~/Projects/org/agenda.org" "~/Projects/org/roam/20230422155303-projects.org"))
     (setq org-agenda-custom-commands
         '(("d" "Deadlines"
               ((agenda ""
@@ -542,10 +538,6 @@
     "t" #'org-babel-execute-subtree
     "l s" #'org/store-link-to-current-line
     "l i" #'org/insert-stored-link)
-
-(after! ob-mermaid
-    (setq ob-mermaid-cli-path paths/mmdc-path));(shell-command-to-string)))
-
 
 (after! org-babel
     (org-babel-do-load-languages
@@ -718,6 +710,11 @@
 
 (use-package! lsp-mode
     :config
+    (lsp-register-custom-settings
+        '(("rust-analyzer.cargo.extraEnv"
+              (("LIBTORCH" . "/root/miniconda/lib/python3.10/site-packages/torch")
+                  ("LD_LIBRARY_PATH" . "/root/miniconda/lib/python3.10/site-packages/torch/lib")
+                  ("LIBTORCH_CXX11_ABI" . "0")))))
     (lsp-register-client
         (make-lsp-client
             :new-connection
@@ -818,6 +815,10 @@ See URL `http://pypi.python.org/pypi/ruff'."
     (remove-hook 'python-mode-hook #'poetry-tracking-mode)
     (add-hook 'python-mode-hook 'poetry-track-virtualenv))
 
+
+(after! ob-mermaid
+    (setq ob-mermaid-cli-path paths/mmdc-path (shell-command-to-string)))
+
 (after! lean4-mode
     (setq lean4-rootdir "/home/kuba/.elan/"))
 
@@ -835,16 +836,3 @@ See URL `http://pypi.python.org/pypi/ruff'."
 ;;    (setq org-confirm-babel-evaluate nil)
 ;;    (setq org-export-babel-evaluate nil)
 ;;    (setq org-startup-with-inline-images t))
-
-;; aider
-(use-package! aidermacs
-    :bind (("C-c a" . aidermacs-transient-menu))
-    :config
-                                        ; Set API_KEY in .bashrc, that will automatically picked up by aider or in elisp
-    (setenv "ANTHROPIC_API_KEY" (get-key-from-file anthropic-api-key-path))
-                                        ; defun my-get-openrouter-api-key yourself elsewhere for security reasons
-    :custom
-                                        ; See the Configuration section below
-                                        ;(aidermacs-use-architect-mode t)
-    (aidermacs-program "/Users/kuba/Projects/.pixi/envs/default/bin/aider")
-    (aidermacs-default-model "claude-3-7-sonnet-20250219"))
