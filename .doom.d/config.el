@@ -407,6 +407,7 @@
     (add-hook 'org-insert-heading-hook 'org/add-timestamp-to-heading-property)
     ;;(add-to-list 'org-export-backends 'hugo)
     ;;(add-to-list 'org-latex-packages-alist '("" "buss" t))
+    (plist-put org-format-latex-options :scale 1.75)
     (setq org-agenda-files (list "~/Projects/org/agenda.org" "~/Projects/org/roam/20230422155303-projects.org"))
     (setq org-agenda-custom-commands
         '(("d" "Deadlines"
@@ -848,3 +849,9 @@ See URL `http://pypi.python.org/pypi/ruff'."
                                         ;(aidermacs-use-architect-mode t)
     (aidermacs-program "/Users/kuba/Projects/.pixi/envs/default/bin/aider")
     (aidermacs-default-model "claude-3-7-sonnet-20250219"))
+
+;; pomodoro
+(after! org-pomodoro
+    (setq org-pomodoro-length 30
+        org-pomodoro-short-break-length 5
+        ))

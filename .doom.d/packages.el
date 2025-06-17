@@ -87,3 +87,4 @@
 (package! org-roam-ui)
 (package! gptel)
 (package! aidermacs :recipe (:host github :repo "MatthewZMD/aidermacs"))
+(package! d2-mode)
